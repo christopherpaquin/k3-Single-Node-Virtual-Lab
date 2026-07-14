@@ -16,7 +16,10 @@ manifests. Checking `kubectl get pvc postgres-pvc -n lab-apps` can.
 
 Use the names exactly as written (including case) in your manifests, LVM
 commands, and `kubectl` invocations. Each item's `validate:` tag shows the
-exact check the future `scripts/validate.sh` (not yet implemented) will run.
+exact check that item's `script:` performs. Run a single step's script
+directly, or run all of them (and get a pass/fail summary) with
+[`scripts/validate.sh`](../scripts/validate.sh) — see
+[README §4](../README.md#4-validating-your-work) for setup.
 
 ## Naming Conventions Reference
 
@@ -52,13 +55,16 @@ exact check the future `scripts/validate.sh` (not yet implemented) will run.
       controller, namespace `default`) and observe its behavior when
       deleted — confirm it does **not** get recreated.
       `validate: pod/nginx-standalone -n default absent-after-delete`
+      `script: scripts/phase1-01-standalone-pod.sh`
 - [ ] Wrap Nginx in a Deployment named **`nginx-deployment`**, scale to 3
       replicas, then manually delete one Pod and confirm the ReplicaSet
       self-heals back to 3.
       `validate: deployment/nginx-deployment replicas=3`
+      `script: scripts/phase1-02-deployment-selfheal.sh`
 - [ ] Create namespace **`lab-apps`** and re-create/move `nginx-deployment`
       into it (same name, new namespace) for logical isolation.
       `validate: namespace/lab-apps + deployment/nginx-deployment -n lab-apps`
+      `script: scripts/phase1-03-namespace.sh`
 
 ## Phase 2: Networking & Exposure
 
@@ -69,14 +75,17 @@ All resources below live in the `lab-apps` namespace and target
       and validate internal cluster DNS resolution from a temporary Pod
       named **`dns-test`** (`nslookup nginx-clusterip.lab-apps.svc.cluster.local`).
       `validate: service/nginx-clusterip type=ClusterIP + dns-resolves`
+      `script: scripts/phase2-01-clusterip-dns.sh`
 - [ ] **NodePort:** Create a NodePort Service named **`nginx-nodeport`**
       bound to node port **`30080`**, and reach it from outside the VM using
       the node's IP.
       `validate: service/nginx-nodeport type=NodePort nodePort=30080`
+      `script: scripts/phase2-02-nodeport.sh`
 - [ ] **Ingress:** Create an Ingress named **`nginx-ingress`** mapping host
       **`lab.k3s.local`** to `nginx-clusterip`, and confirm routing works via
       `curl -H "Host: lab.k3s.local" http://<node-ip>/`.
       `validate: ingress/nginx-ingress host=lab.k3s.local`
+      `script: scripts/phase2-03-ingress.sh`
 
 ## Phase 3: Persistent Storage (Dual Architecture)
 
@@ -86,18 +95,22 @@ All resources below live in the `lab-apps` namespace and target
       (`lsblk`) and unformatted. (Device name is VM-specific — check with
       `lsblk`, don't assume `/dev/sdb`.)
       `validate: block-device-present`
+      `script: scripts/phase3-01-block-device.sh`
 - [ ] Build an LVM Volume Group named **`vg_lab_storage`** and a Logical
       Volume named **`lv_local_path`** on the secondary disk, and format the
       Logical Volume with XFS.
       `validate: lvm vg=vg_lab_storage lv=lv_local_path fstype=xfs`
+      `script: scripts/phase3-02-lvm-xfs.sh`
 - [ ] Mount the Logical Volume at **`/mnt/lv_local_path`** and reconfigure
       K3s's Local Path Provisioner (`local-path-config` ConfigMap in
       `kube-system`) to use that path.
       `validate: mount /mnt/lv_local_path + local-path-config points there`
+      `script: scripts/phase3-03-local-path-mount.sh`
 - [ ] Deploy PostgreSQL as a Deployment named **`postgres`** with a PVC
       named **`postgres-pvc`** (namespace `lab-apps`), write test data,
       delete and recreate the Pod, and confirm the data survives.
       `validate: pvc/postgres-pvc bound + deployment/postgres data-persists`
+      `script: scripts/phase3-04-postgres-persistence.sh`
 
 ### Track B — NFS External Provisioning (RWX)
 
@@ -105,20 +118,24 @@ All resources below live in the `lab-apps` namespace and target
       environment-specific — document the export path you used, e.g.
       `/srv/nfs/k3s-lab`.
       `validate: storage-nfs-export-reachable`
+      `script: scripts/phase3-05-nfs-export.sh` (needs `NFS_SERVER` / `NFS_EXPORT_PATH`)
 - [ ] Install and validate NFS client tooling on the guest OS —
       `nfs-common` on Ubuntu, `nfs-utils` on Fedora — and confirm the share
       can be mounted manually (`mount -t nfs <host>:<path> /mnt/test`).
       `validate: storage-nfs-client-mount`
+      `script: scripts/phase3-06-nfs-client-mount.sh` (needs `NFS_SERVER` / `NFS_EXPORT_PATH`)
 - [ ] Deploy `nfs-subdir-external-provisioner` into namespace
       **`nfs-provisioning`** (Deployment name
       **`nfs-subdir-external-provisioner`**), pointed at the exported share,
       registering StorageClass **`nfs-client`**.
       `validate: deployment/nfs-subdir-external-provisioner -n nfs-provisioning + storageclass/nfs-client`
+      `script: scripts/phase3-07-nfs-provisioner.sh`
 - [ ] Deploy an Nginx Deployment named **`nginx-shared`** (namespace
       `lab-apps`, 3 replicas) sharing a single RWX PVC named
       **`nginx-shared-pvc`**, all serving the same `index.html` written to
       the shared volume.
       `validate: pvc/nginx-shared-pvc accessMode=RWX + deployment/nginx-shared replicas=3`
+      `script: scripts/phase3-08-nginx-shared.sh`
 
 ## Phase 4: Configuration Management
 
@@ -126,11 +143,13 @@ All resources below live in the `lab-apps` namespace and target
       named **`configmap-test`** (namespace `lab-apps`); confirm the values
       are visible inside the container.
       `validate: configmap/app-config + pod/configmap-test mounts-it`
+      `script: scripts/phase4-01-configmap.sh`
 - [ ] Create a Secret named **`db-credentials`** with mock database
       credentials and inject it as environment variables into a test Pod
       named **`secret-test`** (namespace `lab-apps`); confirm the values
       resolve and are **not** stored in plaintext in the Pod spec.
       `validate: secret/db-credentials + pod/secret-test env-from-secret`
+      `script: scripts/phase4-02-secret.sh`
 
 ## Phase 5: Operational Troubleshooting
 
@@ -140,13 +159,16 @@ resources, just command usage to confirm.
 - [ ] Stream logs from a Pod in `nginx-deployment` with `kubectl logs -f`
       and observe live output.
       `validate: ops-logs-streamable`
+      `script: scripts/phase5-01-logs.sh`
 - [ ] Open an interactive shell in a Pod in `nginx-deployment` with
       `kubectl exec -it -- /bin/sh` and inspect its filesystem/process state.
       `validate: ops-exec-shell`
+      `script: scripts/phase5-02-exec.sh`
 - [ ] Establish a local tunnel to `nginx-clusterip` with
       `kubectl port-forward svc/nginx-clusterip 8080:80` and reach it on
       `localhost:8080`, bypassing NodePort/Ingress.
       `validate: ops-port-forward-tunnel`
+      `script: scripts/phase5-03-port-forward.sh`
 
 ---
 

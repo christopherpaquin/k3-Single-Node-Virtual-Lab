@@ -121,9 +121,50 @@ operational troubleshooting — and is meant to be worked top to bottom.
 Each step in the checklist uses a **fixed resource name** (see
 [docs/CHECKLIST.md](docs/CHECKLIST.md#naming-conventions-reference) — e.g.
 the Postgres PVC must be named `postgres-pvc` in the `lab-apps` namespace)
-so that an automated script (`scripts/validate.sh`, not yet implemented) can
-check for those exact objects rather than guessing whether *some* PVC or
-StorageClass satisfies the step. The plan is for that script to run directly
-on the K3s VM, inspect live cluster/VM state — e.g. `kubectl get pvc
-postgres-pvc -n lab-apps`, or confirming the LVM mount backing the local-path
-provisioner exists — and report pass/fail per step.
+so that a validation script can check for those exact objects rather than
+guessing whether *some* PVC or StorageClass satisfies the step.
+
+Every checklist item has a matching script under [`scripts/`](scripts/) —
+the checklist itself links each item to its `script:` name — plus a master
+runner, [`scripts/validate.sh`](scripts/validate.sh), that runs all of them
+and prints a pass/fail summary.
+
+**Run this on the K3s VM itself**, not your workstation — several checks
+(LVM, mount points, NFS client tooling) inspect host state directly and only
+make sense there. Clone/pull this repo onto the VM, then:
+
+```bash
+# run everything, in checklist order
+./scripts/validate.sh
+
+# run just one phase
+./scripts/validate.sh phase3
+
+# run a single step
+./scripts/phase2-02-nodeport.sh
+
+# list every available script
+./scripts/validate.sh --list
+```
+
+By default the scripts pick up `~/.kube/config`, falling back to
+`/etc/rancher/k3s/k3s.yaml`. If you're validating from a copied-out kubeconfig
+(e.g. pulled from the VM to check remotely for non-host-level steps), point
+`KUBECONFIG` at it instead:
+
+```bash
+KUBECONFIG=/path/to/k3s.yaml ./scripts/validate.sh
+```
+
+The two NFS steps in Phase 3 (Track B) also need `NFS_SERVER` and
+`NFS_EXPORT_PATH` set, since the export lives on your hypervisor and is
+environment-specific:
+
+```bash
+NFS_SERVER=192.168.1.1 NFS_EXPORT_PATH=/srv/nfs/k3s-lab ./scripts/phase3-05-nfs-export.sh
+```
+
+A few steps (data survives a Pod restart, `kubectl logs -f` streaming live,
+an interactive `exec` shell) are inherently something you have to observe
+yourself — their scripts verify what can be checked structurally and print a
+reminder for the manual part.
