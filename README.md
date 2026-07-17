@@ -210,72 +210,85 @@ K3s doesn't bundle the `helm` CLI, so install it first:
 curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
 ```
 
-### 3.2 Install Headlamp
+### 3.2 Install Headlamp, exposed persistently over the network
 
 ```bash
 helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/
 helm repo update
-helm install my-headlamp headlamp/headlamp --namespace kube-system
+helm install my-headlamp headlamp/headlamp \
+  --namespace kube-system \
+  --set service.type=NodePort \
+  --set service.nodePort=30081
 ```
 
 The Helm chart names every resource after the **release name** you gave it
 (`my-headlamp`), not the chart name — so this creates a Deployment, Service,
 and ServiceAccount all named `my-headlamp` in `kube-system`, not
-`my-headlamp-headlamp` / `headlamp`. Check the rollout with the correct
-name:
+`my-headlamp-headlamp` / `headlamp`.
+
+The two `--set` flags replace the chart's default `ClusterIP` Service (only
+reachable from inside the cluster, which is why the earlier version of this
+guide needed `kubectl port-forward`) with a `NodePort` Service bound to a
+fixed port — `30081` here, chosen so it doesn't collide with
+`nginx-nodeport`'s `30080` from the checklist. A NodePort Service is exposed
+on **every node's IP**, permanently, as long as the Service exists — no
+running/blocking foreground command required, unlike `port-forward`.
+
+Check the rollout:
 
 ```bash
 kubectl -n kube-system rollout status deployment/my-headlamp
 ```
 
-### 3.3 Get an admin login token
-
-Unlike the manual setup some guides show, this chart **already creates** a
-`my-headlamp` ServiceAccount bound to the `cluster-admin` ClusterRole by
-default (`clusterRoleBinding.create: true` in its `values.yaml`) — the
-`helm install` output above even told you the exact command to run. No
-separate `kubectl create serviceaccount`/`clusterrolebinding` step needed:
+**On surviving reboots:** no extra step is needed here. Headlamp is a normal
+Kubernetes Deployment, not a host process — Kubernetes itself is responsible
+for keeping it running, including after a reboot. K3s was already installed
+as an enabled systemd service back in §2.2, so it starts automatically on
+every VM boot; once K3s is back up, it reschedules every Deployment that
+existed before, Headlamp included. You can verify this after the fact with:
 
 ```bash
-kubectl create token my-headlamp --namespace kube-system
+sudo reboot
+# wait for the VM to come back, then:
+kubectl get nodes
+kubectl -n kube-system get pods -l app.kubernetes.io/instance=my-headlamp
 ```
 
-Copy the printed token — you'll paste it into the Headlamp login screen.
-(If you want to practice tighter RBAC instead of `cluster-admin`, re-run the
-`helm install` from §3.2 with `--set clusterRoleBinding.clusterRoleName=<a
-narrower ClusterRole>`.)
+### 3.3 Create a long-lived admin token (once)
+
+Headlamp's in-cluster mode has no separate user database of its own — it
+delegates authentication entirely to the Kubernetes API, so a bearer token
+for a ServiceAccount *is* the login credential. This chart already creates a
+`my-headlamp` ServiceAccount bound to `cluster-admin` by default
+(`clusterRoleBinding.create: true` in its `values.yaml`), so there's no
+separate `kubectl create serviceaccount`/`clusterrolebinding` step — you
+just need a token for it:
+
+```bash
+kubectl create token my-headlamp --namespace kube-system --duration=8760h
+```
+
+`kubectl create token` without `--duration` issues a token that expires
+after **one hour**, which is why the earlier version of this guide had you
+regenerating it constantly. `--duration=8760h` (~1 year) makes it
+effectively permanent for a lab: paste it into the Headlamp login screen
+once via 3.4 below, and you shouldn't need to touch this again for the
+lifetime of the VM.
+
+> **Security note:** this token is a bearer credential for full
+> `cluster-admin` — anyone who has it can do anything to your cluster.
+> Treat it like a root password (e.g. save it in a password manager rather
+> than a plain text file), and don't set a long duration like this on a
+> shared or internet-facing cluster. If you'd rather practice tighter RBAC
+> instead of blanket `cluster-admin`, re-run the `helm install` from §3.2
+> with `--set clusterRoleBinding.clusterRoleName=<a narrower ClusterRole>`.
 
 ### 3.4 Access Headlamp
 
-`kubectl port-forward` binds to the machine it's *run on* — if you're
-working from the VM's own desktop/browser, plain `localhost` works. If
-you're connecting to the VM remotely (SSH from your workstation, which is
-the more common setup for this lab), `localhost` refers to your own
-workstation, not the VM, and the tunnel won't be reachable there unless you
-tell it to listen on all interfaces and browse to the VM's IP instead:
-
-```bash
-kubectl port-forward -n kube-system service/my-headlamp --address 0.0.0.0 8080:80
-```
-
-Then open `http://<node-ip>:8080` (the same node IP used for the NodePort
-and Ingress steps in the checklist), paste the token from 3.3, and you
-should see the cluster overview.
-
-> **Security note:** `--address 0.0.0.0` exposes this tunnel to your whole
-> network over plain HTTP for as long as the command keeps running — fine
-> for an isolated lab VM, but stop it (`Ctrl+C`) when you're done rather
-> than leaving it up indefinitely. If you'd rather not expose it at all,
-> open an SSH tunnel from your workstation instead
-> (`ssh -L 8080:localhost:8080 <user>@<node-ip>`) and keep the original
-> `kubectl port-forward -n kube-system service/my-headlamp 8080:80` (no
-> `--address`) running on the VM — then `http://localhost:8080` on your own
-> workstation works too.
-
-This `port-forward` pattern is also covered later, on your own workloads, in
-[Phase 5](docs/CHECKLIST.md#phase-5-operational-troubleshooting) of the
-checklist — leave a tunnel running (or re-run the command) whenever you want
-to check in on the cluster visually while working through the lab.
+Open `http://<node-ip>:30081` from any machine on the same network as the
+VM — the same node IP already used for the NodePort and Ingress steps in the
+checklist — and paste the token from 3.3. No `port-forward`, no `localhost`,
+and nothing needs to keep running in your terminal.
 
 ---
 
