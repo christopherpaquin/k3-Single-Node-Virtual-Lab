@@ -47,6 +47,17 @@ avoided to keep the lab free of subscription/registration requirements).
 
 These steps assume a fresh VM with the secondary disk attached but untouched.
 
+> **Run every command in this section as your normal (non-root) login user**
+> — the same user you'll keep using for the rest of the lab — using `sudo`
+> only where a command is shown with it. Do **not** `sudo su -` / `su -` into
+> `root` and run these commands unprefixed. Switching users changes `$HOME`,
+> so anything you create while acting as `root` (especially the kubeconfig
+> copied in §2.4) ends up under `/root` instead of your own home directory —
+> which produces exactly the confusing "permission denied" errors this
+> section is written to avoid. The K3s install script already re-invokes
+> `sudo` internally wherever it needs root, so there's no reason to become
+> `root` yourself at any point.
+
 ### 2.1 Update the OS and install prerequisites
 
 **Ubuntu:**
@@ -61,9 +72,20 @@ sudo dnf upgrade -y
 sudo dnf install -y curl iscsi-initiator-utils nfs-utils lvm2
 ```
 
-- `nfs-common` / `nfs-utils` and `lvm2` aren't required for K3s itself, but you'll
-  need them later for the storage tracks in the lab checklist — installing them
-  now avoids revisiting this step.
+What each package is for:
+
+- `curl` — fetches the K3s install script in §2.2.
+- `open-iscsi` / `iscsi-initiator-utils` — iSCSI initiator tooling that K3s's
+  storage plumbing probes for at startup. This lab doesn't use iSCSI
+  directly, but installing it avoids startup warnings.
+- `nfs-common` / `nfs-utils` — NFS **client** tooling (provides the
+  `mount.nfs` helper). Not needed by K3s itself, but required later for
+  Phase 3 Track B (NFS-backed persistent storage) in the checklist.
+- `lvm2` — LVM tooling (`pvcreate`, `vgcreate`, `lvcreate`, etc.), needed
+  later for Phase 3 Track A (local block storage) in the checklist.
+
+Installing the storage tooling now, before K3s, means Phase 3 won't require
+backtracking to this step later.
 
 ### 2.2 Install K3s
 
@@ -71,9 +93,26 @@ sudo dnf install -y curl iscsi-initiator-utils nfs-utils lvm2
 curl -sfL https://get.k3s.io | sh -
 ```
 
-This installs K3s as a systemd service, using containerd as the runtime,
-Flannel as the CNI, and Traefik as the ingress controller — all bundled by
-default, matching the architecture this lab targets.
+Run this as your normal user, per the note above — the script detects it
+isn't running as `root` and transparently re-invokes the privileged parts of
+itself with `sudo`, prompting for your password if needed. You never need to
+type `sudo` yourself here, and you should never run it as `root` directly.
+
+This script:
+
+- Downloads the K3s binary to `/usr/local/bin/k3s`.
+- Creates `/usr/local/bin/kubectl` (and `crictl`, `ctr`) as **symlinks to the
+  `k3s` binary** — K3s bundles its own kubectl-compatible client instead of
+  requiring a separate `kubectl` install. This detail matters in §2.4 below.
+- Writes a systemd unit at `/etc/systemd/system/k3s.service` and
+  starts/enables the `k3s` service.
+- Generates a cluster kubeconfig at `/etc/rancher/k3s/k3s.yaml`, owned by
+  `root` with `0600` permissions — deliberately unreadable by your normal
+  user until you complete §2.4.
+
+By default this installs K3s with containerd as the container runtime,
+Flannel as the CNI, and Traefik as the ingress controller — all bundled,
+matching the architecture this lab targets.
 
 ### 2.3 Verify the install
 
@@ -82,9 +121,17 @@ sudo systemctl status k3s --no-pager
 sudo k3s kubectl get nodes -o wide
 ```
 
+- `systemctl status k3s` confirms the systemd service is `active (running)`.
+- `sudo k3s kubectl ...` explicitly runs K3s's bundled client **as root** via
+  `sudo`, so it can read the root-owned kubeconfig directly. This is why it
+  works immediately after install, before your own user has access (§2.4).
+
 The single node should show `Ready`.
 
 ### 2.4 Configure `kubectl` access for your user
+
+Copy the cluster's kubeconfig to your own user so you're not running
+everything through `sudo k3s kubectl` for the rest of the lab:
 
 ```bash
 mkdir -p ~/.kube
@@ -93,7 +140,37 @@ sudo chown "$(id -u)":"$(id -g)" ~/.kube/config
 chmod 600 ~/.kube/config
 ```
 
-Optionally install `kubectl` separately, or keep using `k3s kubectl`. Confirm:
+What each line does:
+
+- `mkdir -p ~/.kube` — creates kubectl's default config directory if it
+  doesn't already exist.
+- `sudo cp ...` — copies the root-owned kubeconfig into your own
+  `~/.kube/config`; `sudo` is required here only to *read* the source file.
+- `sudo chown "$(id -u)":"$(id -g)" ...` — hands ownership of the copy to
+  your own user (`id -u`/`id -g` resolve to your current UID/GID), so you
+  won't need `sudo` to read it afterwards.
+- `chmod 600 ...` — restricts the file to your own user, since it contains a
+  full-admin cluster credential.
+
+**Now set `KUBECONFIG`.** This step is easy to skip and produces a confusing
+`permission denied` error if you do: `/usr/local/bin/kubectl` is a
+**symlink to the `k3s` binary** (§2.2), and K3s's bundled kubectl does *not*
+follow standalone kubectl's usual default of falling back to
+`~/.kube/config`. Left unset, it defaults straight to
+`/etc/rancher/k3s/k3s.yaml` — the root-owned original — even though you just
+set up a perfectly good copy:
+
+```bash
+export KUBECONFIG=~/.kube/config
+echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
+```
+
+The `export` takes effect in your current shell immediately; appending to
+`~/.bashrc` makes it persist for future logins and new shells. (If you use a
+shell other than bash, add the equivalent line to that shell's rc file
+instead — e.g. `~/.zshrc`.)
+
+Confirm everything works:
 
 ```bash
 kubectl get nodes
@@ -101,7 +178,15 @@ kubectl get pods -A
 ```
 
 You should see the core K3s components (`coredns`, `local-path-provisioner`,
-`metrics-server`, `traefik`) running in `kube-system`.
+`metrics-server`, `traefik`) running in `kube-system`, and your node listed
+as `Ready` — this time via plain `kubectl`, with no `sudo` needed.
+
+> **Alternative:** installing a standalone `kubectl` binary (rather than
+> relying on K3s's symlinked one) follows the normal `KUBECONFIG` /
+> `~/.kube/config` default-lookup behavior out of the box, sidestepping this
+> quirk entirely. See the [official kubectl install
+> docs](https://kubernetes.io/docs/tasks/tools/#kubectl) if you'd prefer
+> that route — either works for the rest of this lab.
 
 ---
 
