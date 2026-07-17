@@ -24,8 +24,9 @@ avoided to keep the lab free of subscription/registration requirements).
 
 - [1. Virtual Machine Requirements](#1-virtual-machine-requirements)
 - [2. Installing K3s](#2-installing-k3s)
-- [3. Working Through the Lab](#3-working-through-the-lab)
-- [4. Validating Your Work](#4-validating-your-work)
+- [3. Installing a Web UI (Headlamp)](#3-installing-a-web-ui-headlamp)
+- [4. Working Through the Lab](#4-working-through-the-lab)
+- [5. Validating Your Work](#5-validating-your-work)
 
 ---
 
@@ -104,7 +105,72 @@ You should see the core K3s components (`coredns`, `local-path-provisioner`,
 
 ---
 
-## 3. Working Through the Lab
+## 3. Installing a Web UI (Headlamp)
+
+A web UI isn't required for the lab — everything below works purely through
+`kubectl` — but it's a convenient way to browse the cluster visually as you
+build up resources, so it's worth installing now before you start the
+checklist.
+
+**[Headlamp](https://headlamp.dev/)** is used here rather than the older
+Kubernetes Dashboard: Dashboard has been archived by the Kubernetes project
+and no longer receives updates, while Headlamp is the actively maintained
+project recommended as its successor (Kubernetes SIG UI).
+
+### 3.1 Install Helm
+
+K3s doesn't bundle the `helm` CLI, so install it first:
+
+```bash
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
+### 3.2 Install Headlamp
+
+```bash
+helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/
+helm repo update
+helm install my-headlamp headlamp/headlamp --namespace kube-system
+```
+
+This deploys Headlamp as a Deployment in `kube-system`, backed by a Service
+named `headlamp` on port `80`.
+
+```bash
+kubectl -n kube-system rollout status deployment/my-headlamp-headlamp
+```
+
+### 3.3 Create an admin login token
+
+Headlamp authenticates with a Kubernetes Service Account token. Create one
+scoped to `cluster-admin` (fine for this single-node lab; use a narrower
+`ClusterRole` if you want to practice RBAC restriction):
+
+```bash
+kubectl -n kube-system create serviceaccount headlamp-admin
+kubectl create clusterrolebinding headlamp-admin \
+  --serviceaccount=kube-system:headlamp-admin \
+  --clusterrole=cluster-admin
+kubectl create token headlamp-admin -n kube-system
+```
+
+Copy the printed token — you'll paste it into the Headlamp login screen.
+
+### 3.4 Access Headlamp
+
+```bash
+kubectl port-forward -n kube-system service/headlamp 8080:80
+```
+
+Open `http://localhost:8080`, paste the token from 3.3, and you should see
+the cluster overview. This `port-forward` pattern is also covered later, on
+your own workloads, in [Phase 5](docs/CHECKLIST.md#phase-5-operational-troubleshooting)
+of the checklist — leave this tunnel running (or re-run the command) whenever
+you want to check in on the cluster visually while working through the lab.
+
+---
+
+## 4. Working Through the Lab
 
 Once K3s is installed and healthy, move on to the full lab checklist:
 
@@ -116,7 +182,7 @@ operational troubleshooting — and is meant to be worked top to bottom.
 
 ---
 
-## 4. Validating Your Work
+## 5. Validating Your Work
 
 Each step in the checklist uses a **fixed resource name** (see
 [docs/CHECKLIST.md](docs/CHECKLIST.md#naming-conventions-reference) — e.g.

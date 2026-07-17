@@ -19,7 +19,7 @@ commands, and `kubectl` invocations. Each item's `validate:` tag shows the
 exact check that item's `script:` performs. Run a single step's script
 directly, or run all of them (and get a pass/fail summary) with
 [`scripts/validate.sh`](../scripts/validate.sh) — see
-[README §4](../README.md#4-validating-your-work) for setup.
+[README §5](../README.md#5-validating-your-work) for setup.
 
 ## Naming Conventions Reference
 
