@@ -218,40 +218,64 @@ helm repo update
 helm install my-headlamp headlamp/headlamp --namespace kube-system
 ```
 
-This deploys Headlamp as a Deployment in `kube-system`, backed by a Service
-named `headlamp` on port `80`.
+The Helm chart names every resource after the **release name** you gave it
+(`my-headlamp`), not the chart name — so this creates a Deployment, Service,
+and ServiceAccount all named `my-headlamp` in `kube-system`, not
+`my-headlamp-headlamp` / `headlamp`. Check the rollout with the correct
+name:
 
 ```bash
-kubectl -n kube-system rollout status deployment/my-headlamp-headlamp
+kubectl -n kube-system rollout status deployment/my-headlamp
 ```
 
-### 3.3 Create an admin login token
+### 3.3 Get an admin login token
 
-Headlamp authenticates with a Kubernetes Service Account token. Create one
-scoped to `cluster-admin` (fine for this single-node lab; use a narrower
-`ClusterRole` if you want to practice RBAC restriction):
+Unlike the manual setup some guides show, this chart **already creates** a
+`my-headlamp` ServiceAccount bound to the `cluster-admin` ClusterRole by
+default (`clusterRoleBinding.create: true` in its `values.yaml`) — the
+`helm install` output above even told you the exact command to run. No
+separate `kubectl create serviceaccount`/`clusterrolebinding` step needed:
 
 ```bash
-kubectl -n kube-system create serviceaccount headlamp-admin
-kubectl create clusterrolebinding headlamp-admin \
-  --serviceaccount=kube-system:headlamp-admin \
-  --clusterrole=cluster-admin
-kubectl create token headlamp-admin -n kube-system
+kubectl create token my-headlamp --namespace kube-system
 ```
 
 Copy the printed token — you'll paste it into the Headlamp login screen.
+(If you want to practice tighter RBAC instead of `cluster-admin`, re-run the
+`helm install` from §3.2 with `--set clusterRoleBinding.clusterRoleName=<a
+narrower ClusterRole>`.)
 
 ### 3.4 Access Headlamp
 
+`kubectl port-forward` binds to the machine it's *run on* — if you're
+working from the VM's own desktop/browser, plain `localhost` works. If
+you're connecting to the VM remotely (SSH from your workstation, which is
+the more common setup for this lab), `localhost` refers to your own
+workstation, not the VM, and the tunnel won't be reachable there unless you
+tell it to listen on all interfaces and browse to the VM's IP instead:
+
 ```bash
-kubectl port-forward -n kube-system service/headlamp 8080:80
+kubectl port-forward -n kube-system service/my-headlamp --address 0.0.0.0 8080:80
 ```
 
-Open `http://localhost:8080`, paste the token from 3.3, and you should see
-the cluster overview. This `port-forward` pattern is also covered later, on
-your own workloads, in [Phase 5](docs/CHECKLIST.md#phase-5-operational-troubleshooting)
-of the checklist — leave this tunnel running (or re-run the command) whenever
-you want to check in on the cluster visually while working through the lab.
+Then open `http://<node-ip>:8080` (the same node IP used for the NodePort
+and Ingress steps in the checklist), paste the token from 3.3, and you
+should see the cluster overview.
+
+> **Security note:** `--address 0.0.0.0` exposes this tunnel to your whole
+> network over plain HTTP for as long as the command keeps running — fine
+> for an isolated lab VM, but stop it (`Ctrl+C`) when you're done rather
+> than leaving it up indefinitely. If you'd rather not expose it at all,
+> open an SSH tunnel from your workstation instead
+> (`ssh -L 8080:localhost:8080 <user>@<node-ip>`) and keep the original
+> `kubectl port-forward -n kube-system service/my-headlamp 8080:80` (no
+> `--address`) running on the VM — then `http://localhost:8080` on your own
+> workstation works too.
+
+This `port-forward` pattern is also covered later, on your own workloads, in
+[Phase 5](docs/CHECKLIST.md#phase-5-operational-troubleshooting) of the
+checklist — leave a tunnel running (or re-run the command) whenever you want
+to check in on the cluster visually while working through the lab.
 
 ---
 
