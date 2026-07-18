@@ -331,9 +331,9 @@ still exist.
 
 ### Configuration & Organization
 
-9. Namespaces
-10. Labels, Selectors, and Annotations
-11. Declarative YAML
+9. [Namespaces](docs/exercises/09-namespaces.md)
+10. [Labels, Selectors, and Annotations](docs/exercises/10-labels-selectors-and-annotations.md)
+11. [Declarative YAML](docs/exercises/11-declarative-yaml.md)
 12. ConfigMaps
 13. Secrets
 
