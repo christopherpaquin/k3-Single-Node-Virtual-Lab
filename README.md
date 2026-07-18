@@ -374,15 +374,14 @@ still exist.
 
 ### Resilience & Capstone
 
-31. Failure Scenarios
-32. Backup and Recovery
-33. Final Troubleshooting Challenge
+31. [Failure Scenarios](docs/exercises/31-failure-scenarios.md)
+32. [Backup and Recovery](docs/exercises/32-backup-and-recovery.md)
+33. [Final Troubleshooting Challenge](docs/exercises/33-final-troubleshooting-challenge.md)
 
 ---
 
-Entries without a link haven't been written yet — this index will be
-updated with a working link as each exercise is added. The legacy
-[docs/CHECKLIST.md](docs/CHECKLIST.md) still covers some of this same
-ground (workloads, networking, storage, config, ops) in the meantime and
-remains usable on its own, but is being superseded by the exercises above
-and will eventually be retired once every topic has a home here.
+All 33 exercises above are complete. The legacy
+[docs/CHECKLIST.md](docs/CHECKLIST.md) covered some of this same ground
+(workloads, networking, storage, config, ops) under the lab's original
+flat-checklist format and is kept only for reference — the exercises
+above are the current, actively maintained path through this lab.
