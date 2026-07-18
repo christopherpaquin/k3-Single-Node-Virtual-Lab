@@ -364,8 +364,8 @@ still exist.
 
 ### Security
 
-27. Security Contexts
-28. Service Accounts and RBAC
+27. [Security Contexts](docs/exercises/27-security-contexts.md)
+28. [Service Accounts and RBAC](docs/exercises/28-service-accounts-and-rbac.md)
 
 ### Tooling
 
