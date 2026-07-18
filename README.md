@@ -359,8 +359,8 @@ still exist.
 
 ### Platform Internals
 
-25. System-Level k3s Components
-26. k3s Service and Host-Level Investigation
+25. [System-Level k3s Components](docs/exercises/25-system-level-k3s-components.md)
+26. [k3s Service and Host-Level Investigation](docs/exercises/26-k3s-service-and-host-level-investigation.md)
 
 ### Security
 
