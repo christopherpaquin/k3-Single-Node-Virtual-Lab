@@ -353,9 +353,9 @@ still exist.
 
 20. [Jobs and CronJobs](docs/exercises/20-jobs-and-cronjobs.md)
 21. [Local Storage](docs/exercises/21-local-storage.md)
-22. StatefulSets
-23. DaemonSets
-24. Multi-Container Pods
+22. [StatefulSets](docs/exercises/22-statefulsets.md)
+23. [DaemonSets](docs/exercises/23-daemonsets.md)
+24. [Multi-Container Pods](docs/exercises/24-multi-container-pods.md)
 
 ### Platform Internals
 
