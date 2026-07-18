@@ -319,13 +319,13 @@ still exist.
 
 1. [Cluster Orientation](docs/exercises/01-cluster-orientation.md)
 2. [Pods and Basic Workloads](docs/exercises/02-pods-and-basic-workloads.md)
-3. Deployments and ReplicaSets
+3. [Deployments and ReplicaSets](docs/exercises/03-deployments-and-replicasets.md)
 
 ### Networking
 
-4. Services and Port Access
-5. k3s ServiceLB
-6. Traefik Ingress
+4. [Services and Port Access](docs/exercises/04-services-and-port-access.md)
+5. [k3s ServiceLB](docs/exercises/05-k3s-servicelb.md)
+6. [Traefik Ingress](docs/exercises/06-traefik-ingress.md)
 7. CoreDNS and Service Discovery
 8. Single-Node Networking
 
