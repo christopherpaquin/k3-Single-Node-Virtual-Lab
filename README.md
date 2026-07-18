@@ -369,8 +369,8 @@ still exist.
 
 ### Tooling
 
-29. Helm
-30. CLI Efficiency
+29. [Helm](docs/exercises/29-helm.md)
+30. [CLI Efficiency](docs/exercises/30-cli-efficiency.md)
 
 ### Resilience & Capstone
 
