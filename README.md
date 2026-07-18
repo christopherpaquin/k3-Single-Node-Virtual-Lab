@@ -326,8 +326,8 @@ still exist.
 4. [Services and Port Access](docs/exercises/04-services-and-port-access.md)
 5. [k3s ServiceLB](docs/exercises/05-k3s-servicelb.md)
 6. [Traefik Ingress](docs/exercises/06-traefik-ingress.md)
-7. CoreDNS and Service Discovery
-8. Single-Node Networking
+7. [CoreDNS and Service Discovery](docs/exercises/07-coredns-and-service-discovery.md)
+8. [Single-Node Networking](docs/exercises/08-single-node-networking.md)
 
 ### Configuration & Organization
 
