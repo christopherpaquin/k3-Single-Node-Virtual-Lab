@@ -345,9 +345,9 @@ still exist.
 
 ### Scheduling & Resources
 
-17. Resource Requests and Limits
-18. Node Labels, Taints, and Scheduling
-19. Single-Node Maintenance
+17. [Resource Requests and Limits](docs/exercises/17-resource-requests-and-limits.md)
+18. [Node Labels, Taints, and Scheduling](docs/exercises/18-node-labels-taints-and-scheduling.md)
+19. [Single-Node Maintenance](docs/exercises/19-single-node-maintenance.md)
 
 ### Workload Types
 
