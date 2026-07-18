@@ -351,8 +351,8 @@ still exist.
 
 ### Workload Types
 
-20. Jobs and CronJobs
-21. Local Storage
+20. [Jobs and CronJobs](docs/exercises/20-jobs-and-cronjobs.md)
+21. [Local Storage](docs/exercises/21-local-storage.md)
 22. StatefulSets
 23. DaemonSets
 24. Multi-Container Pods
