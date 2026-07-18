@@ -377,11 +377,3 @@ still exist.
 31. [Failure Scenarios](docs/exercises/31-failure-scenarios.md)
 32. [Backup and Recovery](docs/exercises/32-backup-and-recovery.md)
 33. [Final Troubleshooting Challenge](docs/exercises/33-final-troubleshooting-challenge.md)
-
----
-
-All 33 exercises above are complete. The legacy
-[docs/CHECKLIST.md](docs/CHECKLIST.md) covered some of this same ground
-(workloads, networking, storage, config, ops) under the lab's original
-flat-checklist format and is kept only for reference — the exercises
-above are the current, actively maintained path through this lab.
