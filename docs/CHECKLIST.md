@@ -1,7 +1,14 @@
-# Lab Checklist
+# Lab Checklist (Legacy)
 
-This checklist tracks the full set of exercises for the K3s Single-Node Lab,
-to be completed **after** following the install steps in the
+> **This checklist has been superseded by the
+> [numbered exercises](../README.md#4-lab-exercises)** — a narrative,
+> step-by-step rewrite of this same material (plus much more) that
+> explains *why* to run each command and *what to look for* in its
+> output, not just what to check off. It's kept here for reference only;
+> new work should start from the exercise index in the README.
+
+This checklist tracks the original flat-checklist version of this lab, to
+be completed **after** following the install steps in the
 [root README](../README.md). Work through the phases in order — later phases
 (especially Phase 3) assume earlier resources already exist.
 
