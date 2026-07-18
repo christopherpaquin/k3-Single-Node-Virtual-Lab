@@ -25,8 +25,7 @@ avoided to keep the lab free of subscription/registration requirements).
 - [1. Virtual Machine Requirements](#1-virtual-machine-requirements)
 - [2. Installing K3s](#2-installing-k3s)
 - [3. Installing a Web UI (Headlamp)](#3-installing-a-web-ui-headlamp)
-- [4. Working Through the Lab](#4-working-through-the-lab)
-- [5. Validating Your Work](#5-validating-your-work)
+- [4. Lab Exercises](#4-lab-exercises)
 
 ---
 
@@ -292,67 +291,98 @@ and nothing needs to keep running in your terminal.
 
 ---
 
-## 4. Working Through the Lab
+## 4. Lab Exercises
 
-Once K3s is installed and healthy, move on to the full lab checklist:
+Once K3s is installed and healthy, move on to the exercises below.
 
-**[docs/CHECKLIST.md](docs/CHECKLIST.md)**
+Unlike a simple pass/fail checklist, each exercise is a short, narrative
+walkthrough of one topic: you run a command, read what it prints, and the
+text tells you *why* you ran it and *what to look for* in the output before
+moving to the next one. The same handful of inspection commands
+(`kubectl get`, `describe`, `logs`, `events`) come up again and again on
+purpose — the goal of this lab is comfort navigating a running cluster from
+the CLI, not just completing tasks.
 
-The checklist is broken into five phases — workload primitives, networking &
-exposure, persistent storage (block + NFS), configuration management, and
-operational troubleshooting — and is meant to be worked top to bottom.
+Every exercise ends with a short recap and a link to the next one, so you
+can either:
+
+- Start at **Exercise 1** and follow the "Next" link at the bottom of each
+  page straight through to the end, or
+
+- Jump directly to whichever topic you want from the index below.
+
+Exercises are grouped into modules, and are meant to be worked in order
+within a module — later exercises assume resources created in earlier ones
+still exist.
+
+### Foundations
+
+1. [Cluster Orientation](docs/exercises/01-cluster-orientation.md)
+2. [Pods and Basic Workloads](docs/exercises/02-pods-and-basic-workloads.md)
+3. Deployments and ReplicaSets
+
+### Networking
+
+4. Services and Port Access
+5. k3s ServiceLB
+6. Traefik Ingress
+7. CoreDNS and Service Discovery
+8. Single-Node Networking
+
+### Configuration & Organization
+
+9. Namespaces
+10. Labels, Selectors, and Annotations
+11. Declarative YAML
+12. ConfigMaps
+13. Secrets
+
+### Observability & Troubleshooting
+
+14. Logging and Troubleshooting
+15. Pod Restart and Recovery
+16. Health Checks
+
+### Scheduling & Resources
+
+17. Resource Requests and Limits
+18. Node Labels, Taints, and Scheduling
+19. Single-Node Maintenance
+
+### Workload Types
+
+20. Jobs and CronJobs
+21. Local Storage
+22. StatefulSets
+23. DaemonSets
+24. Multi-Container Pods
+
+### Platform Internals
+
+25. System-Level k3s Components
+26. k3s Service and Host-Level Investigation
+
+### Security
+
+27. Security Contexts
+28. Service Accounts and RBAC
+
+### Tooling
+
+29. Helm
+30. CLI Efficiency
+
+### Resilience & Capstone
+
+31. Failure Scenarios
+32. Backup and Recovery
+33. Final Troubleshooting Challenge
 
 ---
 
-## 5. Validating Your Work
-
-Each step in the checklist uses a **fixed resource name** (see
-[docs/CHECKLIST.md](docs/CHECKLIST.md#naming-conventions-reference) — e.g.
-the Postgres PVC must be named `postgres-pvc` in the `lab-apps` namespace)
-so that a validation script can check for those exact objects rather than
-guessing whether *some* PVC or StorageClass satisfies the step.
-
-Every checklist item has a matching script under [`scripts/`](scripts/) —
-the checklist itself links each item to its `script:` name — plus a master
-runner, [`scripts/validate.sh`](scripts/validate.sh), that runs all of them
-and prints a pass/fail summary.
-
-**Run this on the K3s VM itself**, not your workstation — several checks
-(LVM, mount points, NFS client tooling) inspect host state directly and only
-make sense there. Clone/pull this repo onto the VM, then:
-
-```bash
-# run everything, in checklist order
-./scripts/validate.sh
-
-# run just one phase
-./scripts/validate.sh phase3
-
-# run a single step
-./scripts/phase2-02-nodeport.sh
-
-# list every available script
-./scripts/validate.sh --list
-```
-
-By default the scripts pick up `~/.kube/config`, falling back to
-`/etc/rancher/k3s/k3s.yaml`. If you're validating from a copied-out kubeconfig
-(e.g. pulled from the VM to check remotely for non-host-level steps), point
-`KUBECONFIG` at it instead:
-
-```bash
-KUBECONFIG=/path/to/k3s.yaml ./scripts/validate.sh
-```
-
-The two NFS steps in Phase 3 (Track B) also need `NFS_SERVER` and
-`NFS_EXPORT_PATH` set, since the export lives on your hypervisor and is
-environment-specific:
-
-```bash
-NFS_SERVER=192.168.1.1 NFS_EXPORT_PATH=/srv/nfs/k3s-lab ./scripts/phase3-05-nfs-export.sh
-```
-
-A few steps (data survives a Pod restart, `kubectl logs -f` streaming live,
-an interactive `exec` shell) are inherently something you have to observe
-yourself — their scripts verify what can be checked structurally and print a
-reminder for the manual part.
+Entries without a link haven't been written yet — this index will be
+updated with a working link as each exercise is added. The legacy
+[docs/CHECKLIST.md](docs/CHECKLIST.md) still covers some of this same
+ground (workloads, networking, storage, config, ops) in the meantime and
+remains usable on its own, but is being superseded by the exercises above
+and will eventually be retired once every topic has a home here.
