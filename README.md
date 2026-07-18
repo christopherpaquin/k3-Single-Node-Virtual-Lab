@@ -339,9 +339,9 @@ still exist.
 
 ### Observability & Troubleshooting
 
-14. Logging and Troubleshooting
-15. Pod Restart and Recovery
-16. Health Checks
+14. [Logging and Troubleshooting](docs/exercises/14-logging-and-troubleshooting.md)
+15. [Pod Restart and Recovery](docs/exercises/15-pod-restart-and-recovery.md)
+16. [Health Checks](docs/exercises/16-health-checks.md)
 
 ### Scheduling & Resources
 
