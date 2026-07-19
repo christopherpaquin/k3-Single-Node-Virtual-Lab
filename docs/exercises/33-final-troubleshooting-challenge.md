@@ -324,7 +324,7 @@ That's all 33 exercises — from checking `systemctl status k3s` for the
 first time in Exercise 1, through every core Kubernetes primitive, to
 diagnosing a multi-fault outage blind, using nothing but `kubectl` and the
 habits built up one exercise at a time. Head back to the
-[exercise index](../../README.md#4-lab-exercises) any time you want to
+[exercise index](../../README.md#2-lab-exercises) any time you want to
 revisit a topic.
 
 **Previous:** [Exercise 32 — Backup and Recovery](32-backup-and-recovery.md)

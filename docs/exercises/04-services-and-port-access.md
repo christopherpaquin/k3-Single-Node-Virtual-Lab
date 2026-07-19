@@ -175,9 +175,9 @@ done.
 
 If you're connecting to this VM remotely rather than working from its own
 desktop, plain `localhost` won't be reachable from your workstation — the
-same caveat covered in [README §3.4](../../README.md#34-access-headlamp)
-for Headlamp applies here too (use `--address 0.0.0.0` and the node's IP,
-or an SSH tunnel).
+same caveat covered in [K3s/Headlamp Install
+§2.4](../K3S-HEADLAMP-INSTALL.md#24-access-headlamp) for Headlamp applies
+here too (use `--address 0.0.0.0` and the node's IP, or an SSH tunnel).
 
 ---
 

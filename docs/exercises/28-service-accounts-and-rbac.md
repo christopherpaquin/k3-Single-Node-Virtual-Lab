@@ -17,8 +17,9 @@ exactly what that identity is allowed to do.
 
 You've also already used this exact system without necessarily
 recognizing it: the `cluster-admin`-bound ServiceAccount token you created
-for Headlamp back in README §3.3 is the same mechanism this exercise
-builds a properly *narrow* version of.
+for Headlamp back in [K3s/Headlamp Install
+§2.3](../K3S-HEADLAMP-INSTALL.md#23-create-a-long-lived-admin-token-once)
+is the same mechanism this exercise builds a properly *narrow* version of.
 
 ---
 
@@ -234,8 +235,10 @@ Look for a volume named something like `kube-api-access-xxxxx`, of type
 old-style static tokens), the cluster's CA certificate, and the Pod's own
 namespace, all mounted together automatically by an admission controller,
 with no action required from you. This is the exact same underlying
-mechanism as `kubectl create token` from README §3.3 — there, you ran it
-manually to get a token for a **human** to paste into Headlamp; here,
+mechanism as `kubectl create token` from [K3s/Headlamp Install
+§2.3](../K3S-HEADLAMP-INSTALL.md#23-create-a-long-lived-admin-token-once)
+— there, you ran it manually to get a token for a **human** to paste into
+Headlamp; here,
 Kubernetes runs the equivalent automatically so a **Pod's own processes**
 can authenticate as themselves.
 

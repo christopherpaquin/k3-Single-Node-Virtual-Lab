@@ -82,17 +82,19 @@ cat /etc/rancher/k3s/config.yaml 2>/dev/null || echo "no config.yaml present"
 
 Unlike `k3s.yaml` (the kubeconfig), a `config.yaml` here is entirely
 optional — K3s runs fine without one. This lab's cluster was configured
-entirely through install-time behavior and defaults (README §2.2), which
-is a completely normal and common way to run K3s; `config.yaml` only
-becomes necessary once you want persistent, file-based server flags
-instead of a one-off install command.
+entirely through install-time behavior and defaults ([K3s/Headlamp
+Install §1.2](../K3S-HEADLAMP-INSTALL.md#12-install-k3s)), which is a
+completely normal and common way to run K3s; `config.yaml` only becomes
+necessary once you want persistent, file-based server flags instead of a
+one-off install command.
 
 ---
 
 ## Step 4: Revisit `k3s.yaml` at its source
 
-You copied this file back in README §2.4 — look at the original directly
-this time:
+You copied this file back in [K3s/Headlamp Install
+§1.4](../K3S-HEADLAMP-INSTALL.md#14-configure-kubectl-access-for-your-user)
+— look at the original directly this time:
 
 ```bash
 sudo cat /etc/rancher/k3s/k3s.yaml
@@ -142,7 +144,8 @@ currently holds.
 ## Step 6: `crictl` — container runtime activity directly
 
 K3s bundles its own `crictl` the same way it bundles `kubectl` — as
-another symlink to the same binary (recall README §2.2):
+another symlink to the same binary (recall [K3s/Headlamp Install
+§1.2](../K3S-HEADLAMP-INSTALL.md#12-install-k3s)):
 
 ```bash
 sudo k3s crictl ps

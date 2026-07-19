@@ -11,7 +11,9 @@
 You've now met every major piece of `kube-system` individually, spread
 across earlier exercises: CoreDNS (Exercise 7), Traefik (Exercise 6),
 ServiceLB (Exercise 5), Metrics Server (Exercise 17), and Helm-installed
-components (Exercise 6, for Headlamp back in README §3). This exercise
+components (Exercise 6's `HelmChart` mechanism for Traefik, and Headlamp
+back in the [K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md)).
+This exercise
 treats `kube-system` as one connected system, fills in the one piece you
 haven't looked at directly yet (the Local Path Provisioner, used
 constantly since Exercise 21), and adds one new general-purpose skill:
@@ -39,7 +41,8 @@ kubectl get all -n kube-system
 ```
 
 This is a lot busier than it was back in Exercise 1 — everything K3s
-bundles by default, plus Headlamp if you installed it from README §3.
+bundles by default, plus Headlamp if you installed it from the
+[K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md).
 
 ---
 

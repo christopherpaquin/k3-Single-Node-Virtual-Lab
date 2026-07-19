@@ -3,15 +3,17 @@
 **Module:** Tooling
 
 **Prerequisite:** [Exercise 28 — Service Accounts and RBAC](28-service-accounts-and-rbac.md).
-Also assumes Helm is installed (README §3.1, for Headlamp).
+Also assumes Helm is installed ([K3s/Headlamp Install
+§2.1](../K3S-HEADLAMP-INSTALL.md#21-install-helm), for Headlamp).
 
 ---
 
 ## Theme
 
 You've already used Helm twice in this lab without necessarily thinking
-of it as "learning Helm": installing Headlamp by hand back in README §3,
-and finding the `HelmChart` custom resource that installed Traefik
+of it as "learning Helm": installing Headlamp by hand back in the
+[K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md), and finding the
+`HelmChart` custom resource that installed Traefik
 *automatically* in Exercise 6. This exercise works the Helm CLI itself
 directly, end to end — install, inspect, override, upgrade, roll back,
 uninstall — using a fresh chart, so Headlamp stays untouched.
@@ -37,8 +39,9 @@ uninstall — using a fresh chart, so Headlamp stays untouched.
 helm version
 ```
 
-Already installed back in README §3.1 for Headlamp — nothing new to set
-up here.
+Already installed back in [K3s/Headlamp Install
+§2.1](../K3S-HEADLAMP-INSTALL.md#21-install-helm) for Headlamp — nothing
+new to set up here.
 
 ---
 
@@ -65,9 +68,10 @@ central registry does.
 helm install helm-demo bitnami/nginx -n lab-apps --set replicaCount=2
 ```
 
-Same core pattern as installing Headlamp in README §3.2 — a release name
-(`helm-demo`), a chart reference, a namespace, and this time a `--set`
-override.
+Same core pattern as installing Headlamp in [K3s/Headlamp Install
+§2.2](../K3S-HEADLAMP-INSTALL.md#22-install-headlamp-exposed-persistently-over-the-network)
+— a release name (`helm-demo`), a chart reference, a namespace, and this
+time a `--set` override.
 
 ```bash
 helm status helm-demo -n lab-apps
@@ -165,7 +169,9 @@ kubectl get all -n lab-apps -l app.kubernetes.io/instance=helm-demo
 Empty — every resource the release owned is gone, in one command. Compare
 that against how much individual `kubectl delete` bookkeeping this would
 otherwise take, for a chart installing a dozen or more separate objects at
-once (Headlamp, back in README §3.2, is a good example of exactly that).
+once (Headlamp, back in [K3s/Headlamp Install
+§2.2](../K3S-HEADLAMP-INSTALL.md#22-install-headlamp-exposed-persistently-over-the-network),
+is a good example of exactly that).
 
 Clean up the local values file too:
 

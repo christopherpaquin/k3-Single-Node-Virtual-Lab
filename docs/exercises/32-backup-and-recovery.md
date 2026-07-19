@@ -19,9 +19,9 @@ ran successfully.
 > its core datastore file. Every step keeps the original file around
 > under a renamed path rather than deleting it, specifically so you have
 > a way back if something goes wrong. Worst case on this lab VM, if
-> something does go sideways, is reinstalling K3s from README §2 — not
-> something you'd want on a real cluster, but a reasonable, known-safe
-> fallback here.
+> something does go sideways, is reinstalling K3s from the
+> [K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md) — not something
+> you'd want on a real cluster, but a reasonable, known-safe fallback here.
 
 ---
 

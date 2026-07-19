@@ -379,7 +379,7 @@ treat it as optional.
    `/srv/nfs/k3s-lab`, exported to this VM's IP or subnet.
 
 2. **Install NFS client tooling on this VM**, if you didn't already back
-   in README §2.1:
+   in [K3s/Headlamp Install §1.1](../K3S-HEADLAMP-INSTALL.md#11-update-the-os-and-install-prerequisites):
 
    ```bash
    sudo apt install -y nfs-common   # Ubuntu

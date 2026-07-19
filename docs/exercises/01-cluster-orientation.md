@@ -3,7 +3,7 @@
 **Module:** Foundations
 
 **Prerequisite:** K3s installed and `kubectl` working from your own user
-(README [Section 2](../../README.md#2-installing-k3s)).
+([K3s/Headlamp Install §1](../K3S-HEADLAMP-INSTALL.md#1-installing-k3s)).
 
 ---
 
@@ -176,8 +176,8 @@ You should see:
 
 - `default` — where resources land if you don't specify a namespace.
 - `kube-system` — where K3s's own components live (CoreDNS, Traefik,
-  metrics-server, the local-path provisioner, and — if you completed
-  README §3 — Headlamp).
+  metrics-server, the local-path provisioner, and — if you completed the
+  [K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md) §2 — Headlamp).
 - `kube-public` — readable by all users (including unauthenticated ones);
   used for cluster-wide public information. Normally empty in practice.
 - `kube-node-lease` — holds a lightweight "lease" object per node, used for

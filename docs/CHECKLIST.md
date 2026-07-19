@@ -1,7 +1,7 @@
 # Lab Checklist (Legacy)
 
 > **This checklist has been superseded by the
-> [numbered exercises](../README.md#4-lab-exercises)** — a narrative,
+> [numbered exercises](../README.md#2-lab-exercises)** — a narrative,
 > step-by-step rewrite of this same material (plus much more) that
 > explains *why* to run each command and *what to look for* in its
 > output, not just what to check off. It's kept here for reference only;
@@ -25,8 +25,14 @@ Use the names exactly as written (including case) in your manifests, LVM
 commands, and `kubectl` invocations. Each item's `validate:` tag shows the
 exact check that item's `script:` performs. Run a single step's script
 directly, or run all of them (and get a pass/fail summary) with
-[`scripts/validate.sh`](../scripts/validate.sh) — see
-[README §5](../README.md#5-validating-your-work) for setup.
+[`scripts/validate.sh`](../scripts/validate.sh):
+
+```bash
+./scripts/validate.sh
+```
+
+Run it on the K3s VM itself, not your workstation — several checks (LVM,
+mount points, NFS client tooling) inspect host state directly.
 
 ## Naming Conventions Reference
 

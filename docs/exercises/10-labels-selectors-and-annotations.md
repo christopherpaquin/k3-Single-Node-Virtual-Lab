@@ -223,7 +223,8 @@ kubectl get deployment my-headlamp -n kube-system --show-labels
 ```
 
 Look for the same `app.kubernetes.io/*` keys on Headlamp's Deployment,
-applied by the chart itself back in README §3 — this is precisely why
+applied by the chart itself back in the
+[K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md) — this is precisely why
 those labels exist: so that a UI, a script, or another engineer can
 reliably answer "what is this, what's it part of, and what's managing it"
 for *any* resource in the cluster, not just the ones you set up yourself.

@@ -256,8 +256,9 @@ Both paths should be back to working.
 ## Step 8: Inspect the `HelmChart` resource that installed Traefik
 
 Traefik wasn't installed with the Helm CLI the way Headlamp was back in
-README §3 — K3s has its own built-in mechanism for bootstrapping bundled
-components, using a custom resource called `HelmChart`:
+the [K3s/Headlamp Install guide](../K3S-HEADLAMP-INSTALL.md) §2 — K3s has
+its own built-in mechanism for bootstrapping bundled components, using a
+custom resource called `HelmChart`:
 
 ```bash
 kubectl get helmchart -n kube-system traefik -o yaml

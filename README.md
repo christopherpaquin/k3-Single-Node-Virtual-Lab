@@ -23,9 +23,8 @@ avoided to keep the lab free of subscription/registration requirements).
 ## Contents
 
 - [1. Virtual Machine Requirements](#1-virtual-machine-requirements)
-- [2. Installing K3s](#2-installing-k3s)
-- [3. Installing a Web UI (Headlamp)](#3-installing-a-web-ui-headlamp)
-- [4. Lab Exercises](#4-lab-exercises)
+- [K3s/Headlamp Install](docs/K3S-HEADLAMP-INSTALL.md)
+- [2. Lab Exercises](#2-lab-exercises)
 
 ---
 
@@ -37,261 +36,54 @@ avoided to keep the lab free of subscription/registration requirements).
 | Compute | 2 vCPUs minimum | Combined control-plane + worker workload. |
 | Memory | 4-8 GB RAM | Scale toward 8 GB if you plan to add monitoring/telemetry later. |
 | Root Disk | 20-40 GB | OS + K3s binaries + container images. |
-| Secondary Disk | 10-20 GB, raw/unformatted | Attached separately for the LVM/block storage track in the lab (Phase 3, Track A). Do not partition or format it ahead of time. |
+| Secondary Disk | 10-20 GB, raw/unformatted | Attached separately for the LVM/block storage track in the lab exercises (Exercise 21, Track A). Do not partition or format it ahead of time. |
+| NFS Export (optional) | Any host on the same network able to export an NFS share (a hypervisor, NAS, or separate Linux box) | Only needed for the optional network storage track (Exercise 21, Track B). Not required to complete the rest of the lab. |
 | Network | Static or DHCP-reserved IP, outbound internet access | Needed to pull the K3s install script and container images. |
 
----
+### Adding the secondary disk
 
-## 2. Installing K3s
+How you attach the secondary disk depends on your hypervisor/platform —
+this lab doesn't assume a specific one — but the general shape is the same
+everywhere:
 
-These steps assume a fresh VM with the secondary disk attached but untouched.
+- **VirtualBox:** VM Settings → Storage → add a second virtual hard disk
+  (a new `.vdi`/`.vmdk` file) on the same or a different controller from
+  the OS disk.
+- **VMware Workstation/Fusion/ESXi:** VM Settings → Add a new hard disk →
+  create a new virtual disk of the size above.
+- **Proxmox:** VM → Hardware → Add → Hard Disk, on any available
+  storage.
+- **A cloud VM (AWS/Azure/GCP/etc.):** attach a second block-storage
+  volume (EBS/Managed Disk/Persistent Disk) to the instance.
 
-> **Run every command in this section as your normal (non-root) login user**
-> — the same user you'll keep using for the rest of the lab — using `sudo`
-> only where a command is shown with it. Do **not** `sudo su -` / `su -` into
-> `root` and run these commands unprefixed. Switching users changes `$HOME`,
-> so anything you create while acting as `root` (especially the kubeconfig
-> copied in §2.4) ends up under `/root` instead of your own home directory —
-> which produces exactly the confusing "permission denied" errors this
-> section is written to avoid. The K3s install script already re-invokes
-> `sudo` internally wherever it needs root, so there's no reason to become
-> `root` yourself at any point.
+In every case: attach it as a second, independent disk — not a partition
+on the existing OS disk — and leave it completely raw (no filesystem, no
+partition table). The lab exercises handle partitioning, LVM, and
+formatting themselves; anything pre-formatted here will just need to be
+wiped again later. After attaching it and booting the VM, `lsblk` should
+show it as an extra whole-disk entry (commonly `/dev/sdb`, but confirm
+rather than assume) with no `FSTYPE` and no children — this is exactly
+what the lab's storage exercise checks for.
 
-### 2.1 Update the OS and install prerequisites
+### About the optional NFS export
 
-**Ubuntu:**
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y curl open-iscsi nfs-common lvm2
-```
+Exercise 21's Track B (network-attached storage) needs an NFS share
+exported from **outside** this VM — a hypervisor, a NAS, or any other
+Linux host on the same network with `nfs-kernel-server` (or equivalent)
+configured to export a directory to this VM's IP or subnet. Setting up
+that export is outside the scope of this lab, since it depends entirely on
+what's available in your environment — Track A (local block storage via
+LVM) alone is enough to complete every other exercise in this lab. Skip
+this requirement entirely if you don't have infrastructure to export a
+share from; Exercise 21 covers this explicitly as an optional track.
 
-**Fedora:**
-```bash
-sudo dnf upgrade -y
-sudo dnf install -y curl iscsi-initiator-utils nfs-utils lvm2
-```
-
-What each package is for:
-
-- `curl` — fetches the K3s install script in §2.2.
-- `open-iscsi` / `iscsi-initiator-utils` — iSCSI initiator tooling that K3s's
-  storage plumbing probes for at startup. This lab doesn't use iSCSI
-  directly, but installing it avoids startup warnings.
-- `nfs-common` / `nfs-utils` — NFS **client** tooling (provides the
-  `mount.nfs` helper). Not needed by K3s itself, but required later for
-  Phase 3 Track B (NFS-backed persistent storage) in the checklist.
-- `lvm2` — LVM tooling (`pvcreate`, `vgcreate`, `lvcreate`, etc.), needed
-  later for Phase 3 Track A (local block storage) in the checklist.
-
-Installing the storage tooling now, before K3s, means Phase 3 won't require
-backtracking to this step later.
-
-### 2.2 Install K3s
-
-```bash
-curl -sfL https://get.k3s.io | sh -
-```
-
-Run this as your normal user, per the note above — the script detects it
-isn't running as `root` and transparently re-invokes the privileged parts of
-itself with `sudo`, prompting for your password if needed. You never need to
-type `sudo` yourself here, and you should never run it as `root` directly.
-
-This script:
-
-- Downloads the K3s binary to `/usr/local/bin/k3s`.
-- Creates `/usr/local/bin/kubectl` (and `crictl`, `ctr`) as **symlinks to the
-  `k3s` binary** — K3s bundles its own kubectl-compatible client instead of
-  requiring a separate `kubectl` install. This detail matters in §2.4 below.
-- Writes a systemd unit at `/etc/systemd/system/k3s.service` and
-  starts/enables the `k3s` service.
-- Generates a cluster kubeconfig at `/etc/rancher/k3s/k3s.yaml`, owned by
-  `root` with `0600` permissions — deliberately unreadable by your normal
-  user until you complete §2.4.
-
-By default this installs K3s with containerd as the container runtime,
-Flannel as the CNI, and Traefik as the ingress controller — all bundled,
-matching the architecture this lab targets.
-
-### 2.3 Verify the install
-
-```bash
-sudo systemctl status k3s --no-pager
-sudo k3s kubectl get nodes -o wide
-```
-
-- `systemctl status k3s` confirms the systemd service is `active (running)`.
-- `sudo k3s kubectl ...` explicitly runs K3s's bundled client **as root** via
-  `sudo`, so it can read the root-owned kubeconfig directly. This is why it
-  works immediately after install, before your own user has access (§2.4).
-
-The single node should show `Ready`.
-
-### 2.4 Configure `kubectl` access for your user
-
-Copy the cluster's kubeconfig to your own user so you're not running
-everything through `sudo k3s kubectl` for the rest of the lab:
-
-```bash
-mkdir -p ~/.kube
-sudo cp /etc/rancher/k3s/k3s.yaml ~/.kube/config
-sudo chown "$(id -u)":"$(id -g)" ~/.kube/config
-chmod 600 ~/.kube/config
-```
-
-What each line does:
-
-- `mkdir -p ~/.kube` — creates kubectl's default config directory if it
-  doesn't already exist.
-- `sudo cp ...` — copies the root-owned kubeconfig into your own
-  `~/.kube/config`; `sudo` is required here only to *read* the source file.
-- `sudo chown "$(id -u)":"$(id -g)" ...` — hands ownership of the copy to
-  your own user (`id -u`/`id -g` resolve to your current UID/GID), so you
-  won't need `sudo` to read it afterwards.
-- `chmod 600 ...` — restricts the file to your own user, since it contains a
-  full-admin cluster credential.
-
-**Now set `KUBECONFIG`.** This step is easy to skip and produces a confusing
-`permission denied` error if you do: `/usr/local/bin/kubectl` is a
-**symlink to the `k3s` binary** (§2.2), and K3s's bundled kubectl does *not*
-follow standalone kubectl's usual default of falling back to
-`~/.kube/config`. Left unset, it defaults straight to
-`/etc/rancher/k3s/k3s.yaml` — the root-owned original — even though you just
-set up a perfectly good copy:
-
-```bash
-export KUBECONFIG=~/.kube/config
-echo 'export KUBECONFIG=~/.kube/config' >> ~/.bashrc
-```
-
-The `export` takes effect in your current shell immediately; appending to
-`~/.bashrc` makes it persist for future logins and new shells. (If you use a
-shell other than bash, add the equivalent line to that shell's rc file
-instead — e.g. `~/.zshrc`.)
-
-Confirm everything works:
-
-```bash
-kubectl get nodes
-kubectl get pods -A
-```
-
-You should see the core K3s components (`coredns`, `local-path-provisioner`,
-`metrics-server`, `traefik`) running in `kube-system`, and your node listed
-as `Ready` — this time via plain `kubectl`, with no `sudo` needed.
-
-> **Alternative:** installing a standalone `kubectl` binary (rather than
-> relying on K3s's symlinked one) follows the normal `KUBECONFIG` /
-> `~/.kube/config` default-lookup behavior out of the box, sidestepping this
-> quirk entirely. See the [official kubectl install
-> docs](https://kubernetes.io/docs/tasks/tools/#kubectl) if you'd prefer
-> that route — either works for the rest of this lab.
+Once your VM meets the requirements above, head to the
+**[K3s/Headlamp Install guide](docs/K3S-HEADLAMP-INSTALL.md)** to install
+K3s itself and, optionally, the Headlamp web UI.
 
 ---
 
-## 3. Installing a Web UI (Headlamp)
-
-A web UI isn't required for the lab — everything below works purely through
-`kubectl` — but it's a convenient way to browse the cluster visually as you
-build up resources, so it's worth installing now before you start the
-checklist.
-
-**[Headlamp](https://headlamp.dev/)** is used here rather than the older
-Kubernetes Dashboard: Dashboard has been archived by the Kubernetes project
-and no longer receives updates, while Headlamp is the actively maintained
-project recommended as its successor (Kubernetes SIG UI).
-
-### 3.1 Install Helm
-
-K3s doesn't bundle the `helm` CLI, so install it first:
-
-```bash
-curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
-```
-
-### 3.2 Install Headlamp, exposed persistently over the network
-
-```bash
-helm repo add headlamp https://kubernetes-sigs.github.io/headlamp/
-helm repo update
-helm install my-headlamp headlamp/headlamp \
-  --namespace kube-system \
-  --set service.type=NodePort \
-  --set service.nodePort=30081
-```
-
-The Helm chart names every resource after the **release name** you gave it
-(`my-headlamp`), not the chart name — so this creates a Deployment, Service,
-and ServiceAccount all named `my-headlamp` in `kube-system`, not
-`my-headlamp-headlamp` / `headlamp`.
-
-The two `--set` flags replace the chart's default `ClusterIP` Service (only
-reachable from inside the cluster, which is why the earlier version of this
-guide needed `kubectl port-forward`) with a `NodePort` Service bound to a
-fixed port — `30081` here, chosen so it doesn't collide with
-`nginx-nodeport`'s `30080` from the checklist. A NodePort Service is exposed
-on **every node's IP**, permanently, as long as the Service exists — no
-running/blocking foreground command required, unlike `port-forward`.
-
-Check the rollout:
-
-```bash
-kubectl -n kube-system rollout status deployment/my-headlamp
-```
-
-**On surviving reboots:** no extra step is needed here. Headlamp is a normal
-Kubernetes Deployment, not a host process — Kubernetes itself is responsible
-for keeping it running, including after a reboot. K3s was already installed
-as an enabled systemd service back in §2.2, so it starts automatically on
-every VM boot; once K3s is back up, it reschedules every Deployment that
-existed before, Headlamp included. You can verify this after the fact with:
-
-```bash
-sudo reboot
-# wait for the VM to come back, then:
-kubectl get nodes
-kubectl -n kube-system get pods -l app.kubernetes.io/instance=my-headlamp
-```
-
-### 3.3 Create a long-lived admin token (once)
-
-Headlamp's in-cluster mode has no separate user database of its own — it
-delegates authentication entirely to the Kubernetes API, so a bearer token
-for a ServiceAccount *is* the login credential. This chart already creates a
-`my-headlamp` ServiceAccount bound to `cluster-admin` by default
-(`clusterRoleBinding.create: true` in its `values.yaml`), so there's no
-separate `kubectl create serviceaccount`/`clusterrolebinding` step — you
-just need a token for it:
-
-```bash
-kubectl create token my-headlamp --namespace kube-system --duration=8760h
-```
-
-`kubectl create token` without `--duration` issues a token that expires
-after **one hour**, which is why the earlier version of this guide had you
-regenerating it constantly. `--duration=8760h` (~1 year) makes it
-effectively permanent for a lab: paste it into the Headlamp login screen
-once via 3.4 below, and you shouldn't need to touch this again for the
-lifetime of the VM.
-
-> **Security note:** this token is a bearer credential for full
-> `cluster-admin` — anyone who has it can do anything to your cluster.
-> Treat it like a root password (e.g. save it in a password manager rather
-> than a plain text file), and don't set a long duration like this on a
-> shared or internet-facing cluster. If you'd rather practice tighter RBAC
-> instead of blanket `cluster-admin`, re-run the `helm install` from §3.2
-> with `--set clusterRoleBinding.clusterRoleName=<a narrower ClusterRole>`.
-
-### 3.4 Access Headlamp
-
-Open `http://<node-ip>:30081` from any machine on the same network as the
-VM — the same node IP already used for the NodePort and Ingress steps in the
-checklist — and paste the token from 3.3. No `port-forward`, no `localhost`,
-and nothing needs to keep running in your terminal.
-
----
-
-## 4. Lab Exercises
+## 2. Lab Exercises
 
 Once K3s is installed and healthy, move on to the exercises below.
 
