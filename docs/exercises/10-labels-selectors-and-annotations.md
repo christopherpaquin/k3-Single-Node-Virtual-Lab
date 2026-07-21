@@ -7,7 +7,17 @@
 
 ---
 
-## Theme
+## Introduction
+
+A **label** is an arbitrary key/value pair attached to a Kubernetes
+object's metadata — not interpreted by Kubernetes itself, just data you
+(or a tool) attach for your own purposes. A **selector** is a query
+against those labels ("give me everything with `app=nginx-deployment`"),
+and it's the single mechanism nearly every relationship in Kubernetes is
+built on: a Service finds its backing Pods with a selector, a ReplicaSet
+finds the Pods it owns with a selector, and so on. An **annotation** looks
+identical to a label (key/value metadata) but is never selectable —
+purely for attaching information for humans or tooling to read.
 
 You've been relying on labels since Exercise 4 without examining them
 directly — a Service's `selector` is nothing more than a label query, and

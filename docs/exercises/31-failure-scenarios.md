@@ -6,7 +6,7 @@
 
 ---
 
-## Theme
+## Introduction
 
 Every failure mode in this exercise was already taught, once, in depth,
 somewhere earlier in this lab. This one is different on purpose: it's a

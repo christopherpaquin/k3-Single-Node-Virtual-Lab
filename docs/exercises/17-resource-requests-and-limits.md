@@ -6,9 +6,12 @@
 
 ---
 
-## Theme
+## Introduction
 
-Without any resource configuration, a container can use as much CPU and
+The Kubernetes **scheduler** is the control-plane component responsible
+for deciding which node a new Pod runs on — evaluating every node's
+available capacity and any placement rules against what the Pod actually
+needs. Without any resource configuration, a container can use as much CPU and
 memory as the node has, and the scheduler has no real information to
 decide whether a node can actually fit a new Pod. **Requests** are what a
 container is guaranteed and what the scheduler uses to place it; **limits**

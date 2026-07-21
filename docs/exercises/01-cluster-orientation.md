@@ -7,7 +7,26 @@
 
 ---
 
-## Theme
+## Introduction
+
+**Kubernetes** is a system for running containerized applications across
+one or more machines (**nodes**) and keeping them running the way you've
+declared they should run, even as individual processes crash or machines
+reboot. A Kubernetes **cluster** is one control plane (the "brain" —
+scheduling decisions, API, cluster state) plus every node it manages. In a
+typical production cluster, the control plane runs on its own dedicated
+node(s), separate from the nodes that actually run application workloads.
+
+**K3s** is a single, small binary that bundles a fully conformant
+Kubernetes distribution — control plane, kubelet, container runtime, and
+a few batteries-included extras (a CNI, an ingress controller, a
+lightweight load balancer) — with far lower resource and operational
+overhead than a full "vanilla" Kubernetes install. This lab runs it on
+exactly **one** node, meaning that single machine plays both roles at
+once: control plane and workload host. Almost everything you'll learn
+generalizes directly to a bigger, multi-node cluster; the exercises are
+explicit whenever single-node status changes the picture (as with
+DaemonSets and node maintenance, later in this lab).
 
 Before touching any workloads, get comfortable looking at the cluster
 itself.

@@ -6,16 +6,22 @@
 
 ---
 
-## Theme
+## Introduction
 
 Back in Exercise 4, you reached `nginx-clusterip` from another Pod just by
 name, with no explanation of how that actually worked. This exercise opens
 that up.
 
-Every Kubernetes cluster runs a cluster-internal DNS server — **CoreDNS** —
-that automatically creates a DNS record for every Service. Every Pod is
-automatically configured to use it. That combination is what lets you
-write `nginx-clusterip` instead of memorizing a ClusterIP.
+**Service discovery** is the general problem of how one part of a system
+finds the network address of another part, especially when that address
+can change. Kubernetes solves it with DNS: every Kubernetes cluster runs a
+cluster-internal DNS server — **CoreDNS** — that automatically creates a
+DNS record for every Service the moment it's created, and every Pod is
+automatically configured (via its `/etc/resolv.conf`) to use it. That
+combination is what lets you write `nginx-clusterip` instead of
+memorizing a ClusterIP, and it's the mechanism nearly every real
+Kubernetes application relies on to talk to other services in the same
+cluster.
 
 ---
 

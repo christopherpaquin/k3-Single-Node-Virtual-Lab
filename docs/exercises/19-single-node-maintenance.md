@@ -6,9 +6,14 @@
 
 ---
 
-## Theme
+## Introduction
 
-`cordon` and `drain` are routine, low-drama maintenance operations on a
+**Cordoning** a node marks it unschedulable — the scheduler stops placing
+*new* Pods there, but anything already running is left untouched.
+**Draining** goes further: it cordons the node, then actively evicts every
+existing Pod from it, trusting their controllers (Deployments,
+StatefulSets, etc.) to reschedule them elsewhere. Together, `cordon` and
+`drain` are routine, low-drama maintenance operations on a
 real multi-node cluster — you take one node out of rotation, its
 workloads shift to the others, you patch/reboot/replace it, and put it
 back. On a single-node cluster, there's nowhere for anything to shift to,

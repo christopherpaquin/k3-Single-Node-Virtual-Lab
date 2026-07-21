@@ -8,7 +8,17 @@ Also assumes Helm is installed ([K3s/Headlamp Install
 
 ---
 
-## Theme
+## Introduction
+
+**Helm** is the de-facto package manager for Kubernetes — a way to
+package a set of related manifests (Deployments, Services, ConfigMaps,
+RBAC objects, and more) into a single versioned, parameterized bundle
+called a **chart**, which can be installed, upgraded, and removed as one
+unit instead of managing every underlying object by hand. Where Exercise
+11 (Declarative YAML) covered *individual* manifests, Helm exists for
+distributing and configuring a *whole application's* worth of them at
+once — most non-trivial real-world Kubernetes software is distributed
+this way rather than as raw YAML.
 
 You've already used Helm twice in this lab without necessarily thinking
 of it as "learning Helm": installing Headlamp by hand back in the

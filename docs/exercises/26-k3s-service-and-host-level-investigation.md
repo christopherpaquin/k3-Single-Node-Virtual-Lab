@@ -6,12 +6,16 @@
 
 ---
 
-## Theme
+## Introduction
 
 Every exercise so far has looked at the cluster through `kubectl` — which
-means through the API server. This one drops below that entirely, onto
-the VM itself, to look at what's actually running underneath: the K3s
-process, its on-disk state, and the container runtime `kubectl` is
+means through the API server, itself just a process talking to a
+**container runtime** (containerd, in K3s's case) that does the actual
+work of pulling images and starting/stopping containers on the host.
+Kubernetes is, at bottom, an orchestration layer on top of that runtime,
+not a replacement for it. This exercise drops below `kubectl` entirely,
+onto the VM itself, to look at what's actually running underneath: the
+K3s process, its on-disk state, and the container runtime `kubectl` is
 ultimately just a friendly abstraction over.
 
 All commands in this exercise run **directly on the VM**, not through

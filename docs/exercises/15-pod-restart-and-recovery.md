@@ -6,9 +6,13 @@
 
 ---
 
-## Theme
+## Introduction
 
-"Restart" means something different depending on what layer you're
+Kubernetes' reliability model is built on the idea of **self-healing**:
+you declare desired state, and a controller (or the kubelet, or the
+container runtime, depending on the layer) continuously works to restore
+it after any disruption, with no human intervention. But "restart"
+actually means something different depending on what layer you're
 restarting — a container, a Pod, a Deployment, the K3s service, or the
 whole host. Some of these you've already done (deleting a Pod in Exercise
 3, `rollout restart` in Exercises 3 and 12); this exercise fills in the

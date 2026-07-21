@@ -6,10 +6,24 @@
 
 ---
 
-## Theme
+## Introduction
 
-A Pod is the smallest deployable unit in Kubernetes — one or more
-containers that share a network namespace and storage.
+A **Pod** is the smallest deployable unit in Kubernetes — you never
+schedule a bare container directly; you always schedule a Pod, which wraps
+one or more containers that share a network namespace (one IP address,
+one set of ports between them) and, optionally, storage. Most Pods run
+exactly one container; multiple containers in a single Pod is a
+deliberate pattern for tightly-coupled helpers, which you'll build
+yourself in the Multi-Container Pods exercise later in this lab.
+
+A Pod created directly, with nothing else managing it, is often called a
+**"naked" (or standalone) Pod** — it's the rawest, simplest possible
+workload, and this exercise starts there specifically because everything
+else in Kubernetes (Deployments, StatefulSets, DaemonSets, Jobs) is
+ultimately just a different strategy for creating and supervising Pods
+like this one. Understanding a Pod's own lifecycle and failure states
+first makes every one of those higher-level concepts easier to reason
+about later.
 
 In this exercise you'll create a standalone Pod directly (no Deployment
 wrapping it), poke at it from the inside and the outside, delete it and

@@ -6,9 +6,17 @@
 
 ---
 
-## Theme
+## Introduction
 
-You've now met every major piece of `kube-system` individually, spread
+`kube-system` is the namespace every Kubernetes cluster reserves for its
+own platform components — the pieces that make the cluster function at
+all, as opposed to application workloads you deploy into it. Some of
+these (the API server, scheduler, controller-manager) are part of
+Kubernetes itself; others (CoreDNS, an ingress controller, a metrics
+pipeline) are common *add-ons* every real cluster needs but that
+Kubernetes doesn't include by default — K3s's main convenience is
+bundling working versions of exactly these add-ons automatically. You've
+now met every major piece of `kube-system` individually, spread
 across earlier exercises: CoreDNS (Exercise 7), Traefik (Exercise 6),
 ServiceLB (Exercise 5), Metrics Server (Exercise 17), and Helm-installed
 components (Exercise 6's `HelmChart` mechanism for Traefik, and Headlamp

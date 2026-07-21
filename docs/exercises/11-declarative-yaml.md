@@ -6,7 +6,18 @@
 
 ---
 
-## Theme
+## Introduction
+
+Kubernetes supports two fundamentally different ways of working: the
+**imperative** style (`kubectl run`, `kubectl create deployment`,
+`kubectl scale` — "do this action right now") you've used throughout this
+lab so far, and the **declarative** style ("here is the complete desired
+state of this object, in YAML — make reality match it"), which is what
+`kubectl apply -f` does, and what nearly every real production Kubernetes
+workflow is actually built around (often via GitOps — YAML committed to
+a repo, applied automatically). Imperative commands are fast for
+one-off exploration; declarative YAML is what you version, review, and
+reapply reliably.
 
 Every resource so far came from an imperative `kubectl` command —
 `run`, `create deployment`, `expose`, `scale` — or, a few times, a YAML

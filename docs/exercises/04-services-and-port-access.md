@@ -7,7 +7,7 @@ with `nginx-deployment` still running at 3 replicas.
 
 ---
 
-## Theme
+## Introduction
 
 In Exercise 2, you reached a Pod directly by its IP address — and it was
 called out at the time as fragile. Here's why: Pod IPs change every time a
@@ -18,6 +18,22 @@ on a Pod IP staying the same for more than a few minutes.
 A **Service** solves this by giving a stable virtual IP and DNS name to a
 *set* of Pods, selected by label — not to any one Pod. As Pods come and go
 behind it, the Service's address never changes.
+
+Kubernetes actually defines several **types** of Service, each solving a
+different "who needs to reach this" problem — this exercise covers the
+first two:
+
+- **ClusterIP** (the default) — reachable only from inside the cluster.
+  The right choice for internal, Pod-to-Pod traffic that never needs to
+  leave the cluster.
+- **NodePort** — everything a ClusterIP gives you, plus a fixed port
+  opened on every node's own IP, so traffic from outside the cluster can
+  reach it too.
+
+Two more Service types — `LoadBalancer` and headless Services — get their
+own dedicated treatment later in this lab (Exercise 5, and Exercise 22
+for StatefulSets, respectively), once you have the ClusterIP/NodePort
+foundation this exercise builds.
 
 ---
 

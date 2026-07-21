@@ -6,12 +6,16 @@
 
 ---
 
-## Theme
+## Introduction
 
 So far, Kubernetes has only known whether a container's process is
-running at all. A **probe** lets it ask a more useful question — is this
-application actually *working* — and there are three kinds, each
-controlling a different consequence:
+running at all — which is a much weaker signal than "is this application
+actually working." A container can be running and still be deadlocked,
+stuck waiting on a dependency, or serving errors for every request. A
+**probe** is a periodic check (typically an HTTP request, a TCP
+connection attempt, or a command execution) that lets Kubernetes ask that
+better question directly, and there are three kinds, each controlling a
+different consequence:
 
 - **Readiness** — controls whether a Pod receives Service traffic.
   Failure never restarts anything; it just pulls the Pod out of rotation.

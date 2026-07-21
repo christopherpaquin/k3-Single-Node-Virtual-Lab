@@ -6,13 +6,16 @@
 
 ---
 
-## Theme
+## Introduction
 
 Every resource you've created so far has landed in the `default`
-namespace, mostly because you never specified one. Namespaces are
+namespace, mostly because you never specified one. A **namespace** is
 Kubernetes' way of dividing a single cluster into separate logical
 workspaces — separate enough that two objects can share the exact same
-name, as long as they're in different namespaces.
+name, as long as they're in different namespaces. Most (but not all)
+resource types are namespaced; a few, like Nodes and PersistentVolumes,
+are cluster-scoped and exist outside any namespace at all — you'll see
+that distinction matter directly in the RBAC exercise later in this lab.
 
 From here on, this lab uses a dedicated namespace, `lab-apps`, for
 application workloads — separating them from `default` and from K3s's own

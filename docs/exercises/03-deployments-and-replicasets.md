@@ -6,17 +6,33 @@
 
 ---
 
-## Theme
+## Introduction
 
 A standalone Pod, as you saw in Exercise 2, has no one watching over it —
 delete it and it's gone.
 
 A **Deployment** fixes that by describing a *desired state* ("I want 3
 copies of this Pod running, always") and handing it to a controller that
-continuously reconciles reality toward that state. The Deployment itself
-doesn't manage Pods directly — it manages a **ReplicaSet**, which manages
-the Pods. Understanding that chain (Deployment -> ReplicaSet -> Pods) is
-one of the most useful mental models in all of Kubernetes.
+continuously reconciles reality toward that state. This "declare what you
+want, let a controller make it true" pattern — called a **reconciliation
+loop** — is the central idea behind almost everything in Kubernetes, not
+just Deployments: you'll see the same shape again in ReplicaSets,
+StatefulSets, DaemonSets, and Jobs later in this lab.
+
+Deployments are specifically the right tool for **stateless** workloads —
+applications where every replica is interchangeable, holds no unique data
+of its own, and can be freely destroyed and recreated in any order (a web
+server, an API, a stateless microservice). Contrast that later in this
+lab with StatefulSets (Exercise 22), which exist precisely because some
+workloads — databases, queues — are *not* interchangeable this way.
+
+The Deployment itself doesn't manage Pods directly — it manages a
+**ReplicaSet**, which manages the Pods. A ReplicaSet's only job is
+ensuring a fixed number of matching Pods exist at all times; a Deployment
+adds versioning and rollout strategy on top (which is what actually lets
+you upgrade an image safely, later in this exercise). Understanding that
+chain (Deployment -> ReplicaSet -> Pods) is one of the most useful mental
+models in all of Kubernetes.
 
 The `nginx-deployment` you create in this exercise stays running at the end
 — later exercises (starting with Services in Exercise 4) build directly on

@@ -6,13 +6,22 @@
 
 ---
 
-## Theme
+## Introduction
 
-By default, a container runs as `root` inside its own namespace, with a
-writable filesystem and most default Linux capabilities intact. None of
-that is required for most applications — a `securityContext` lets you
-strip away exactly what isn't needed, so that if a container is ever
-compromised, there's meaningfully less it can do.
+Containers are not full virtual machines — by default, a containerized
+process shares the host's kernel, isolated mainly through Linux
+namespaces and cgroups rather than hardware-level separation. That makes
+*how much* a container is allowed to do a genuinely important security
+boundary, not just a formality. A `securityContext` (settable at the Pod
+or individual container level) is Kubernetes' interface to the underlying
+Linux security controls — user ID, filesystem permissions, and
+capabilities — that govern exactly that. By default, a container runs as
+`root` inside its own namespace, with a writable filesystem and most
+default Linux capabilities intact. None of that is required for most
+applications — a `securityContext` lets you strip away exactly what isn't
+needed, following the general security principle of **least privilege**,
+so that if a container is ever compromised, there's meaningfully less it
+can do.
 
 This exercise makes each restriction concrete: not just configuring a
 setting, but showing the specific thing it actually blocks.

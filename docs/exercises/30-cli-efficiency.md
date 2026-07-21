@@ -6,9 +6,12 @@
 
 ---
 
-## Theme
+## Introduction
 
-You've been running `kubectl get`, `describe`, and `-o wide` on repeat
+This exercise doesn't introduce a new Kubernetes concept — everything
+here is about `kubectl` itself as a tool: how it formats output, filters
+results, and integrates with your shell. You've been running `kubectl
+get`, `describe`, and `-o wide` on repeat
 since Exercise 1 — deliberately, since that repetition is how the basics
 actually stick. This exercise is a different kind of practice: a toolbox
 of techniques that make the same investigative work faster once the

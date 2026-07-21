@@ -6,7 +6,18 @@
 
 ---
 
-## Theme
+## Introduction
+
+Exercise 17 covered *how much* of a node's resources the scheduler
+requires before it'll place a Pod there. This exercise covers *which*
+node — or whether a node is even eligible at all. Kubernetes gives you
+several distinct mechanisms for influencing that decision: `nodeSelector`
+and node **affinity** work from the Pod's side ("I want to run somewhere
+matching this label," expressed either as a hard requirement or a soft
+preference); **taints** and **tolerations** work from the node's side ("I
+actively refuse Pods unless they explicitly say they can tolerate me").
+Affinity attracts; taints repel — and this exercise covers both
+directions.
 
 With only one node, nothing in this exercise actually changes *where*
 anything runs — there's nowhere else for it to go. What it does teach is

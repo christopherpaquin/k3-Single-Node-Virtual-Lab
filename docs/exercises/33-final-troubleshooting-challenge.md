@@ -6,7 +6,7 @@
 
 ---
 
-## Theme
+## Introduction
 
 No walkthrough this time. This exercise deploys one bundle of resources —
 a small, fictional "capstone" application — with **eight** deliberate,

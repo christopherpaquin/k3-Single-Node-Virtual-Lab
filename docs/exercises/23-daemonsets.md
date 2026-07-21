@@ -6,19 +6,27 @@
 
 ---
 
-## Theme
+## Introduction
 
-A Deployment answers "run N copies of this, spread across the cluster." A
-**DaemonSet** answers a completely different question: "run exactly one
-copy of this on every node that qualifies — no more, no fewer, and
-automatically on any new node that joins later." You've already been
-running one, without creating it yourself — the `svclb-traefik` Pod from
-Exercise 5.
+A Deployment answers "run N copies of this, spread across the cluster,"
+where N is a number **you** choose and the scheduler decides placement. A
+**DaemonSet** answers a completely different kind of question: "run
+exactly one copy of this on every node that qualifies — no more, no
+fewer, and automatically on any new node that joins later, with no count
+to configure at all." It's the right tool specifically for **per-node
+infrastructure** — something every node needs its own instance of because
+it's reading or managing that node's own local resources (its logs, its
+metrics, its network config), as opposed to a Deployment's replicas, which
+are interchangeable and don't care which node they land on. You've
+already been running one, without creating it yourself — the
+`svclb-traefik` Pod from Exercise 5.
 
 This lab's biggest limitation for this particular topic is unavoidable: a
-DaemonSet's real value only shows up on a cluster with more than one node.
-This exercise demonstrates the mechanics honestly, on the one node
-available, and is explicit about what it can't show.
+DaemonSet's real value only shows up on a cluster with more than one node
+— the entire point is automatic per-node coverage, which a single node
+can't meaningfully demonstrate. This exercise walks through the mechanics
+honestly, on the one node available, and is explicit about what it can't
+show.
 
 ---
 

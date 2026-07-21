@@ -6,12 +6,18 @@
 
 ---
 
-## Theme
+## Introduction
 
 Every exercise in this module so far worked entirely through the
 Kubernetes API — `kubectl get`, `describe`, DNS lookups from inside a Pod.
 This one drops down a level, onto the VM's own network stack, to see what
-all of that is actually built on top of.
+all of that is actually built on top of: a **CNI (Container Network
+Interface) plugin**. Kubernetes itself doesn't implement Pod networking —
+it defines an interface that a pluggable component fulfills, responsible
+for giving every Pod its own IP and making sure Pods can reach each other
+across the cluster. K3s uses **Flannel** as its default CNI (other
+clusters commonly use Calico, Cilium, or others) — you'll find its actual
+network interface on the host directly in this exercise.
 
 You'll also close the loop on two failure modes from earlier exercises —
 ServiceLB's host-port conflict (Exercise 5) and how it compares to a

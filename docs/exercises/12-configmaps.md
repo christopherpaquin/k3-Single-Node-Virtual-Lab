@@ -7,12 +7,18 @@ with `nginx-deployment` and `nginx-clusterip` still running in `lab-apps`.
 
 ---
 
-## Theme
+## Introduction
 
-A **ConfigMap** holds configuration data as key/value pairs, kept separate
-from the container image itself. The same NGINX image can serve
-completely different content, or behave differently, purely based on what
-ConfigMap (if any) is attached to it — no rebuild required.
+A core Kubernetes design principle is separating an application's
+**image** (the built, versioned artifact — code and runtime) from its
+**configuration** (values that differ by environment or deployment: a
+feature flag, a hostname, a log level). Baking configuration directly
+into an image means rebuilding the image for every environment; a
+**ConfigMap** holds configuration data as key/value pairs instead, kept
+completely separate from the container image itself, and attached to a
+Pod at deploy time. The same NGINX image can serve completely different
+content, or behave differently, purely based on what ConfigMap (if any)
+is attached to it — no rebuild required.
 
 There are two fundamentally different ways to attach that data to a Pod —
 as environment variables, or as mounted files — and they behave

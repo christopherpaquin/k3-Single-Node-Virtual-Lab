@@ -6,14 +6,21 @@
 
 ---
 
-## Theme
+## Introduction
 
-Every Pod so far has run one container. A Pod can actually hold several,
-sharing the same network namespace and, optionally, storage — the
-foundation of the **sidecar** pattern (a helper container running
-alongside the main one, for the Pod's whole lifetime) and **init
-containers** (helpers that run once, in order, *before* the main
-containers start at all, and must all succeed first).
+Exercise 2 introduced the Pod as potentially holding more than one
+container; every exercise since has used exactly one. This exercise
+returns to that multi-container capability directly. A Pod can hold
+several containers, sharing the same network namespace and, optionally,
+storage — the foundation of two distinct, common patterns: the
+**sidecar** pattern (a helper container running alongside the main one,
+for the Pod's *entire* lifetime — e.g. a log shipper, a proxy, a
+certificate refresher) and **init containers** (helpers that run once, in
+a defined order, *before* the main containers ever start, and must all
+succeed first — e.g. waiting for a dependency, running a one-time setup
+step). The difference is lifetime and timing: a sidecar runs continuously
+alongside the app; an init container runs once and is done before the app
+begins.
 
 ---
 

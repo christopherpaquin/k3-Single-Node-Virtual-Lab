@@ -6,18 +6,26 @@
 
 ---
 
-## Theme
+## Introduction
 
 `NodePort` and `LoadBalancer` both give you one Service per port. That
 breaks down fast in the real world, where you might want dozens of
 different applications all reachable on the same, ordinary port `80` —
 routed to the right one by hostname or URL path instead.
 
-That's what an **Ingress** is for. It doesn't replace Services — it sits in
-front of them, and an **Ingress controller** (Traefik, bundled with K3s)
-reads Ingress objects and does the actual routing. You already met the
-mechanism Traefik uses to receive that traffic in the first place — it's
-the same ServiceLB Pod from Exercise 5, bound to host port `80`.
+That's what an **Ingress** is for: an API object that describes HTTP(S)
+routing rules — "requests for host X, path Y go to Service Z" — layered
+on top of Services rather than replacing them. An Ingress object by
+itself does nothing; it needs an **Ingress controller** actually watching
+for Ingress objects and configuring a real HTTP proxy to match. Kubernetes
+ships no controller by default — you always have to install one
+(Traefik, NGINX Ingress, and others are common choices). K3s happens to
+bundle Traefik automatically, which is why this lab already has one
+running with no separate install step.
+
+You already met the mechanism Traefik uses to receive that traffic in the
+first place — it's the same ServiceLB Pod from Exercise 5, bound to host
+port `80`.
 
 ---
 

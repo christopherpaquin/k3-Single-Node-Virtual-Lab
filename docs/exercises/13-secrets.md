@@ -6,9 +6,12 @@
 
 ---
 
-## Theme
+## Introduction
 
-A Kubernetes **Secret** looks and behaves almost exactly like a ConfigMap
+Exercise 12 covered ConfigMaps for ordinary, non-sensitive configuration.
+Credentials, API tokens, TLS keys, and anything else sensitive need
+different handling — that's what a **Secret** is for. Structurally, a
+Kubernetes **Secret** looks and behaves almost exactly like a ConfigMap
 — same `--from-literal`/`--from-file` creation, same `envFrom`/volume
 injection mechanics. The difference that actually matters isn't
 mechanical, it's about what protection a Secret does and does not give

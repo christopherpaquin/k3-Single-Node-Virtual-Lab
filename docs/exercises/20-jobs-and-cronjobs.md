@@ -6,13 +6,19 @@
 
 ---
 
-## Theme
+## Introduction
 
 Every workload so far has been something meant to run forever — a
-Deployment keeps its replica count up indefinitely. A **Job** is the
-opposite: it runs a Pod to completion, once, and stops. A **CronJob**
-wraps that in a schedule, creating a new Job at fixed intervals — cluster-
-native cron.
+Deployment keeps its replica count up indefinitely, restarting a
+completed or crashed Pod as a failure to correct, not an outcome to
+accept. A **Job** models the opposite kind of work: something with a
+genuine finish line — a batch process, a database migration, a report —
+that should run to completion exactly once (or a fixed number of times)
+and then stop, with success or failure being a real, expected outcome
+rather than something to loop on forever. A **CronJob** wraps that in a
+schedule, creating a new Job at fixed intervals — cluster-native cron,
+for the same kind of periodic task you might otherwise put in a host
+crontab.
 
 ---
 

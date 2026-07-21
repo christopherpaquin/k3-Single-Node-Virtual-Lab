@@ -6,7 +6,15 @@
 
 ---
 
-## Theme
+## Introduction
+
+The third Service type, **`LoadBalancer`**, is meant to provision a real,
+dedicated external IP for a Service — normally by calling out to whatever
+cloud you're running on (AWS, GCP, Azure, etc.) and asking it to spin up
+an actual managed load balancer in front of your cluster. On a bare-metal
+or on-prem cluster with no cloud provider integration, a `LoadBalancer`
+Service has nothing to call out to — which is exactly the gap this
+exercise's subject fills in.
 
 Exercise 4 ended by pointing out that `LoadBalancer` Services don't mean
 much without a cloud provider to hand out a real external IP.

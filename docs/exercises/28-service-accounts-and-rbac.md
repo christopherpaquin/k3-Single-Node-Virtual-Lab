@@ -6,14 +6,25 @@
 
 ---
 
-## Theme
+## Introduction
+
+Every request to the Kubernetes API — whether from a human running
+`kubectl` or from code running inside a Pod — is checked against two
+questions: *who are you* (authentication) and *what are you allowed to
+do* (authorization). A **ServiceAccount** is an identity for the second
+category: non-human callers, specifically Pods, as opposed to the human
+user identity your own `kubectl` session uses. **RBAC** (Role-Based
+Access Control) is the authorization system that answers the second
+question for any identity — a `Role`/`ClusterRole` defines a set of
+permissions, and a `RoleBinding`/`ClusterRoleBinding` grants that set to
+a specific identity (a ServiceAccount, a user, or a group).
 
 Exercise 13 ended with a pointed but unanswered question: anyone who can
 `get` a Secret can decode it — so who actually can? This exercise answers
 it. Every Pod authenticates to the Kubernetes API as a **ServiceAccount**
 — every Pod you've created in this entire lab has been using one, whether
-you noticed or not — and **RBAC** (Role-Based Access Control) governs
-exactly what that identity is allowed to do.
+you noticed or not — and RBAC governs exactly what that identity is
+allowed to do.
 
 You've also already used this exact system without necessarily
 recognizing it: the `cluster-admin`-bound ServiceAccount token you created

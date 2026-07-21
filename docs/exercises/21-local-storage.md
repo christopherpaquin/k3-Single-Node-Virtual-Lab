@@ -9,13 +9,22 @@ still unformatted.
 
 ---
 
-## Theme
+## Introduction
 
-Every workload so far has been stateless — delete a Pod, and nothing of
-value is lost. A **PersistentVolumeClaim (PVC)** is how a Pod asks for
-durable storage that survives a Pod being deleted and recreated, backed by
-a **PersistentVolume (PV)** that a **StorageClass** knows how to
-provision.
+Every workload so far has been **stateless** — delete a Pod, and nothing
+of value is lost, because it held no data of its own. Once a workload
+needs to durably remember something across restarts — a database, an
+uploaded file, application state — it becomes **stateful**, and a Pod's
+own filesystem isn't good enough: it's deleted along with the container.
+
+A **PersistentVolumeClaim (PVC)** is how a Pod asks for durable storage
+that survives a Pod being deleted and recreated, independent of any one
+Pod's lifecycle. Three objects work together here, each with a distinct
+job: a **PersistentVolume (PV)** represents one real, provisioned piece of
+storage; a **StorageClass** describes *how* to provision new PVs on
+demand (which backend, which parameters); and a PVC is a Pod's *request*
+for storage, which Kubernetes binds to a matching (often
+freshly-provisioned) PV automatically.
 
 This exercise covers both storage paths this lab is built around: K3s's
 built-in **Local Path Provisioner** (Track A — using a dedicated disk, the

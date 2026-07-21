@@ -6,7 +6,15 @@
 
 ---
 
-## Theme
+## Introduction
+
+Troubleshooting a Kubernetes workload means reading from several distinct
+layers of information, each answering a different question: what did the
+*application itself* print (`kubectl logs`); what did the *cluster*
+observe happening to this object over its lifetime (`kubectl describe` /
+Events); and, when both of those run out, what's actually happening on
+the *node* underneath it all. Knowing which layer to check — and in what
+order — is most of what separates fast troubleshooting from guessing.
 
 You've used `kubectl logs`, `describe`, and `exec` individually since
 Exercise 2. This exercise treats them as a single toolkit, adds the pieces

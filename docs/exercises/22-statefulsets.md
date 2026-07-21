@@ -6,13 +6,31 @@
 
 ---
 
-## Theme
+## Introduction
 
-A Deployment's Pods are interchangeable — any replica can be replaced by
-any other, with a new random name, and none of them have an individual
-identity worth preserving. A **StatefulSet** exists for the opposite case:
-Pods that need a stable, predictable identity — a stable name, and their
-**own** dedicated storage — across restarts and rescheduling.
+Exercise 3 introduced Deployments as the right tool for **stateless**
+workloads — every replica interchangeable, none holding unique data, any
+one freely replaceable by a new one with a random name. A **StatefulSet**
+is the Kubernetes workload controller built for the opposite case:
+**stateful** applications — clustered databases (PostgreSQL, MySQL,
+Cassandra), message queues (Kafka, RabbitMQ), or anything else where each
+replica is *not* interchangeable, because each one owns its own distinct
+data and, often, needs to know its own identity relative to its peers
+(e.g. "I am replica 0, the primary" versus "I am replica 1, a follower").
+
+A StatefulSet provides exactly the three guarantees that kind of
+application needs, none of which a Deployment gives you:
+
+- **Stable, predictable Pod names** (`web-0`, `web-1`, `web-2` — not a
+  random hash suffix), so other systems can address one specific replica
+  by name and have that name mean the same thing after a restart.
+- **A dedicated PersistentVolumeClaim per replica**, automatically
+  recreated and reattached to the *same* replica if its Pod is deleted and
+  replaced — not a volume shared across every replica.
+- **Ordered, sequential startup and shutdown** (always low-to-high
+  ordinal on scale-up, high-to-low on scale-down), which matters for
+  applications where replica 0 must exist before replica 1 can safely join
+  a cluster, for example.
 
 This exercise uses plain NGINX (not a real database) specifically to keep
 the focus on the *mechanics* StatefulSets provide, not on operating any

@@ -6,7 +6,16 @@
 
 ---
 
-## Theme
+## Introduction
+
+A Kubernetes cluster's state — every object you've ever created —
+ultimately lives in one place: the **datastore** behind the API server
+(etcd, on most clusters; SQLite, on a single-node K3s cluster like this
+one, as you'll confirm directly). Backing up that datastore is a
+**cluster-state backup**: it preserves object definitions, not the actual
+bytes an application wrote to its own storage. Those are two entirely
+separate risks needing two entirely separate backup strategies, which
+this exercise deliberately treats as distinct throughout.
 
 This exercise ties together three earlier discoveries — Exercise 26 found
 K3s's SQLite datastore file, Exercise 21 found exactly where a PVC's data
